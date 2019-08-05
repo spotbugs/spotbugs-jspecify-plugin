@@ -1,0 +1,30 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.diffplug.gradle.spotless' version '3.24.0'
+    id 'net.ltgt.errorprone' version '0.8.1'
+}
+
+apply from: "$rootDir/gradle/spotless.gradle"
+apply from: "$rootDir/gradle/publish.gradle"
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories { mavenCentral() }
+
+ext {
+    junitVersion = '5.5.1'
+    errorproneVersion = '2.3.3'
+}
+
+dependencies {
+    implementation "info.codeanalysis:codeanalysis-annotations:0.1.0-SNAPSHOT"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
+}
+
+test { useJUnitPlatform() }
+
+defaultTasks 'spotlessApply', 'build'

@@ -1,0 +1,25 @@
+// run `./gradlew publishToMavenLocal` to install artifact to your Local Maven Repository
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            pom {
+                groupId = 'com.github.spotbugs'
+                name = 'SpotBugs CANSADA Plugin'
+                description = 'SpotBugs plugin that works with new standard annotation definitions artifact'
+                url = 'https://github.com/KengoTODA/spotbugs-cansada-plugin'
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git@github.com:KengoTODA/spotbugs-cansada-plugin.git'
+                    developerConnection = 'scm:git:git@github.com:KengoTODA/spotbugs-cansada-plugin.git'
+                    url = 'https://github.com/KengoTODA/spotbugs-cansada-plugin/'
+                }
+            }
+        }
+    }
+}
