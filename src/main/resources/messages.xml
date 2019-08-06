@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MessageCollection
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="messagecollection.xsd">
+
+	<Plugin>
+		<ShortDescription>SpotBugs CANSADA Plugin</ShortDescription>
+		<Details>SpotBugs plugin that works with the new standard annotation
+			definitions artifact.</Details>
+	</Plugin>
+
+</MessageCollection>
