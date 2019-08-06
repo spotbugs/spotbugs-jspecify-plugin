@@ -26,7 +26,6 @@ ext {
 
 dependencies {
     implementation name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
-    implementation "info.codeanalysis:codeanalysis-annotations:0.1.0-SNAPSHOT"
     compileOnly "com.github.spotbugs:spotbugs:${spotbugsVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "com.github.spotbugs:test-harness-jupiter:${spotbugsVersion}"
