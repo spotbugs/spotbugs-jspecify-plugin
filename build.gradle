@@ -11,16 +11,25 @@ apply from: "$rootDir/gradle/publish.gradle"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
 
 ext {
     junitVersion = '5.5.1'
     errorproneVersion = '2.3.3'
+    spotbugsVersion = '4.0.0-beta3'
 }
 
 dependencies {
+    implementation name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
     implementation "info.codeanalysis:codeanalysis-annotations:0.1.0-SNAPSHOT"
+    compileOnly "com.github.spotbugs:spotbugs:${spotbugsVersion}"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "com.github.spotbugs:test-harness-jupiter:${spotbugsVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
 }
