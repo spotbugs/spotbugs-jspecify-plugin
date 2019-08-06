@@ -24,14 +24,24 @@ ext {
     spotbugsVersion = '4.0.0-beta3'
 }
 
+configurations {
+    xsd {
+        transitive = false
+    }
+}
+
 dependencies {
-    implementation name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
+    compileOnly name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
     compileOnly "com.github.spotbugs:spotbugs:${spotbugsVersion}"
+    xsd "com.github.spotbugs:spotbugs:${spotbugsVersion}"
+    testCompileOnly name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testImplementation "com.github.spotbugs:test-harness-jupiter:${spotbugsVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
 }
+
+apply from: "$rootDir/gradle/xsd-validator.gradle"
 
 test { useJUnitPlatform() }
 

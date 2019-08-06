@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindbugsPlugin
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="findbugsplugin.xsd"
 	pluginid="com.github.spotbugs.cansada">
 	<EngineRegistrar class="com.github.spotbugs.cansada.nullness.NullnessEngineRegistrar"/>
 </FindbugsPlugin>
