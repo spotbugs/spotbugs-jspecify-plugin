@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada;
+package com.github.spotbugs.cansada.nullness;
 
 import codeanalysis.experimental.annotations.Nullable;
 
@@ -26,4 +26,9 @@ class AnnotatedWithNullable {
   }
 
   void method(@Nullable Object param) {}
+
+  void test() {
+    field.getClass();
+    method().toString();
+  }
 }

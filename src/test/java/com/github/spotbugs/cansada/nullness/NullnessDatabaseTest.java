@@ -15,6 +15,21 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import edu.umd.cs.findbugs.visitclass.AnnotationVisitor;
+import edu.umd.cs.findbugs.BugCollection;
+import edu.umd.cs.findbugs.test.SpotBugsExtension;
+import edu.umd.cs.findbugs.test.SpotBugsRunner;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-class NullnessDatabase extends AnnotationVisitor {}
+@ExtendWith(SpotBugsExtension.class)
+class NullnessDatabaseTest {
+  static final Path PATH =
+      Paths.get("build/classes/java/test/com/github/spotbugs/cansada/nullness");
+
+  @Test
+  void test(SpotBugsRunner spotbugs) {
+    BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNullable.class"));
+  }
+}
