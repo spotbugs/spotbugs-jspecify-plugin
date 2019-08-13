@@ -15,6 +15,35 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import edu.umd.cs.findbugs.visitclass.AnnotationVisitor;
+import codeanalysis.experimental.annotations.DefaultNotNull;
+import codeanalysis.experimental.annotations.NotNull;
+import edu.umd.cs.findbugs.ba.XMethod;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-class NullnessDatabase extends AnnotationVisitor {}
+@DefaultNotNull
+class NullnessDatabase {
+  Optional<Nullness> findNullnessOf(XMethod method) {
+    // TODO cache
+    if (!method.isReturnTypeReferenceType()) {
+      return Optional.empty();
+    }
+
+    List<@NotNull Nullness> nullnesses =
+        method.getAnnotationDescriptors().stream()
+            .map(desc -> Nullness.from(desc.getClassName()))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
+    final Nullness nullness;
+    if (nullnesses.isEmpty()) {
+      nullness = Nullness.UNKNOWN;
+    } else if (nullnesses.size() == 1) {
+      nullness = nullnesses.get(0);
+    } else {
+      throw new RuntimeException("Found multiple nullness annotations on methods");
+    }
+    return Optional.of(nullness);
+  }
+}

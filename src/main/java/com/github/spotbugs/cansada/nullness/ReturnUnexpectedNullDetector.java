@@ -22,10 +22,9 @@ import edu.umd.cs.findbugs.OpcodeStack.CustomUserValue;
 import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
-import edu.umd.cs.findbugs.classfile.ClassDescriptor;
-import java.util.List;
+import edu.umd.cs.findbugs.classfile.Global;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import org.apache.bcel.Const;
 
 @CustomUserValue
@@ -57,46 +56,22 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
 
   boolean isTargetMethod() {
     // TODO does it work with lambda?
-    List<Nullness> nullnesses =
-        getXMethod().getAnnotationDescriptors().stream()
-            .map(ClassDescriptor::getClassName)
-            .map(Nullness::from)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
-    final Nullness nullness;
-    if (nullnesses.isEmpty()) {
-      nullness = Nullness.UNKNOWN;
-    } else if (nullnesses.size() == 1) {
-      nullness = nullnesses.get(0);
-    } else {
-      throw new RuntimeException("Found multiple nullness annotations on methods");
-    }
-    return !nullness.canBeNull();
+    NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
+    Optional<Nullness> optional = database.findNullnessOf(getXMethod());
+    return optional.isPresent() && !optional.get().canBeNull();
   }
 
   @Override
   public void afterOpcode(int code) {
     switch (code) {
+      case Const.INVOKEINTERFACE:
       case Const.INVOKESPECIAL:
+      case Const.INVOKESTATIC:
       case Const.INVOKEVIRTUAL:
-        if (!getXMethodOperand().isReturnTypeReferenceType()) {
-          return;
-        }
-        List<@NotNull Nullness> nullnesses =
-            getXMethodOperand().getAnnotationDescriptors().stream()
-                .map(desc -> Nullness.from(desc.getClassName()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        final Nullness nullness;
-        if (nullnesses.isEmpty()) {
-          nullness = Nullness.UNKNOWN;
-        } else if (nullnesses.size() == 1) {
-          nullness = nullnesses.get(0);
-        } else {
-          throw new RuntimeException("Found multiple nullness annotations on methods");
-        }
+        NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
+        Optional<Nullness> optional = database.findNullnessOf(getXMethodOperand());
         super.afterOpcode(code);
-        stack.getStackItem(0).setUserValue(nullness);
+        optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
         return;
       default:
         super.afterOpcode(code);
