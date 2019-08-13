@@ -32,6 +32,7 @@ enum Nullness {
     return this.canBeNull;
   }
 
+  // TODO support TypeQualifierNickname
   @Nullable
   public static Nullness from(@Nullable String descriptor) {
     if (descriptor == null) {

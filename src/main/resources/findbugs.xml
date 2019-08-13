@@ -3,4 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	pluginid="com.github.spotbugs.cansada">
 	<EngineRegistrar class="com.github.spotbugs.cansada.nullness.NullnessEngineRegistrar"/>
+	<BugPattern abbrev="CANSADA" type="CANSADA_RETURN_UNEXPECTED_NULL" category="CORRECTNESS" />
+	<Detector class="com.github.spotbugs.cansada.nullness.ReturnUnexpectedNullDetector" reports="CANSADA_RETURN_UNEXPECTED_NULL" speed="fast" />
 </FindbugsPlugin>

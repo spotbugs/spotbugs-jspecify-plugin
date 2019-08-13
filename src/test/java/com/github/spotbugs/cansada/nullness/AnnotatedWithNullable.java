@@ -15,20 +15,13 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import codeanalysis.experimental.annotations.Nullable;
+import codeanalysis.experimental.annotations.NotNull;
 
-class AnnotatedWithNullable {
-  @Nullable Object field;
+class AnnotatedWithNullable {}
 
-  @Nullable
+class AnnotatedWithNotNull {
+  @NotNull
   Object method() {
     return null;
-  }
-
-  void method(@Nullable Object param) {}
-
-  void test() {
-    field.getClass();
-    method().toString();
   }
 }

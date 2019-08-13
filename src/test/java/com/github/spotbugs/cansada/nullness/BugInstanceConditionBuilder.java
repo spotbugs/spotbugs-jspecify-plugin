@@ -21,6 +21,7 @@ import edu.umd.cs.findbugs.BugAnnotation;
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.ClassAnnotation;
 import edu.umd.cs.findbugs.MethodAnnotation;
+import edu.umd.cs.findbugs.SourceLineAnnotation;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,6 +36,19 @@ public class BugInstanceConditionBuilder {
 
   public BugInstanceConditionBuilder bugType(String type) {
     this.predicate = predicate.and(bug -> type.equals(bug.getBugPattern().getType()));
+    return this;
+  }
+
+  public BugInstanceConditionBuilder atLine(int lineNumber) {
+    this.predicate =
+        predicate.and(
+            bug -> {
+              SourceLineAnnotation srcAnn = extractBugAnnotation(bug, SourceLineAnnotation.class);
+              if (srcAnn == null) {
+                return false;
+              }
+              return srcAnn.getStartLine() <= lineNumber && lineNumber <= srcAnn.getEndLine();
+            });
     return this;
   }
 

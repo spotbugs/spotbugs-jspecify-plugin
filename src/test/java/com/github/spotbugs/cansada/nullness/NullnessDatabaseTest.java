@@ -15,11 +15,15 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import edu.umd.cs.findbugs.BugCollection;
+import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.test.SpotBugsExtension;
 import edu.umd.cs.findbugs.test.SpotBugsRunner;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,6 +34,12 @@ class NullnessDatabaseTest {
 
   @Test
   void test(SpotBugsRunner spotbugs) {
-    BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNullable.class"));
+    BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNotNull.class"));
+    Condition<BugInstance> condition =
+        new BugInstanceConditionBuilder()
+            .bugType("CANSADA_RETURN_UNEXPECTED_NULL")
+            .atLine(25)
+            .build();
+    assertThat(bugs).haveExactly(1, condition);
   }
 }
