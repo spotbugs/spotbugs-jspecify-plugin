@@ -5,7 +5,8 @@ publishing {
         mavenJava(MavenPublication) {
             pom {
                 groupId = 'com.github.spotbugs'
-                name = 'SpotBugs CANSADA Plugin'
+                artifactId = 'spotbugs-codeanalysis-annotation-plugin'
+                name = 'SpotBugs CodeAnalysis Annotation Plugin'
                 description = 'SpotBugs plugin that works with new standard annotation definitions artifact'
                 url = 'https://github.com/KengoTODA/spotbugs-cansada-plugin'
                 licenses {
