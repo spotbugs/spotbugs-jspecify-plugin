@@ -16,7 +16,6 @@
 package com.github.spotbugs.cansada.nullness;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,8 @@ class NullnessDatabase {
     List<Nullness> nullnesses =
         method.getAnnotationDescriptors().stream()
             .map(desc -> Nullness.from(desc.getClassName()))
-            .filter(Objects::nonNull)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .collect(Collectors.toList());
     final Nullness nullness;
     if (nullnesses.isEmpty()) {

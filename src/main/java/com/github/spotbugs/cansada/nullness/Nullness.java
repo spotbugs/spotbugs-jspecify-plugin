@@ -15,6 +15,8 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
+import java.util.Optional;
+
 import codeanalysis.experimental.annotations.Nullable;
 
 enum Nullness {
@@ -33,27 +35,26 @@ enum Nullness {
   }
 
   // TODO support TypeQualifierNickname
-  @Nullable
-  public static Nullness from(@Nullable String descriptor) {
+  public static Optional<Nullness> from(@Nullable String descriptor) {
     if (descriptor == null) {
-      return null;
+      return Optional.empty();
     }
 
     switch (descriptor) {
       case "Lcodeanalysis/experimental/annotations/NullnessUnknown;":
       case "codeanalysis/experimental/annotations/NullnessUnknown":
       case "codeanalysis.experimental.annotations.NullnessUnknown":
-        return UNKNOWN;
+        return Optional.of(UNKNOWN);
       case "Lcodeanalysis/experimental/annotations/Nullable;":
       case "codeanalysis/experimental/annotations/Nullable":
       case "codeanalysis.experimental.annotations.Nullable":
-        return NULLABLE;
+        return Optional.of(NULLABLE);
       case "Lcodeanalysis/experimental/annotations/NotNull;":
       case "codeanalysis/experimental/annotations/NotNull":
       case "codeanalysis.experimental.annotations.NotNull":
-        return NOT_NULL;
+        return Optional.of(NOT_NULL);
       default:
-        return null;
+        return Optional.empty();
     }
   }
 }
