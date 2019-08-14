@@ -23,6 +23,7 @@ class NullnessDatabaseFactory implements IDatabaseFactory<NullnessDatabase> {
 
   @Override
   public NullnessDatabase createDatabase() throws CheckedAnalysisException {
+    // TODO load nullness info of JDK from packaged resource file
     return new NullnessDatabase();
   }
 
