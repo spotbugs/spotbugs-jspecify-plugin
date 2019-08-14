@@ -15,15 +15,13 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import codeanalysis.experimental.annotations.DefaultNotNull;
-import codeanalysis.experimental.annotations.NotNull;
-import edu.umd.cs.findbugs.ba.XMethod;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@DefaultNotNull
+import edu.umd.cs.findbugs.ba.XMethod;
+
 class NullnessDatabase {
   Optional<Nullness> findNullnessOf(XMethod method) {
     // TODO cache
@@ -31,7 +29,7 @@ class NullnessDatabase {
       return Optional.empty();
     }
 
-    List<@NotNull Nullness> nullnesses =
+    List<Nullness> nullnesses =
         method.getAnnotationDescriptors().stream()
             .map(desc -> Nullness.from(desc.getClassName()))
             .filter(Objects::nonNull)

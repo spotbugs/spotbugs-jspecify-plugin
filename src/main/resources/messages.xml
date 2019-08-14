@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<Plugin>
-		<ShortDescription>SpotBugs CANSADA Plugin</ShortDescription>
+		<ShortDescription>SpotBugs CodeAnalysis Annotation Plugin</ShortDescription>
 		<Details>SpotBugs plugin that works with the new standard annotation
 			definitions artifact.</Details>
 	</Plugin>
