@@ -15,9 +15,8 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import java.util.Optional;
-
 import codeanalysis.experimental.annotations.Nullable;
+import java.util.Optional;
 
 enum Nullness {
   UNKNOWN(true),

@@ -15,11 +15,6 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
-import java.util.Objects;
-import java.util.Optional;
-
-import org.apache.bcel.Const;
-
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.OpcodeStack.CustomUserValue;
@@ -27,6 +22,9 @@ import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.classfile.Global;
+import java.util.Objects;
+import java.util.Optional;
+import org.apache.bcel.Const;
 
 @CustomUserValue
 public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {

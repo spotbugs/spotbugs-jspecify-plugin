@@ -15,11 +15,10 @@
  */
 package com.github.spotbugs.cansada.nullness;
 
+import edu.umd.cs.findbugs.ba.XMethod;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import edu.umd.cs.findbugs.ba.XMethod;
 
 class NullnessDatabase {
   Optional<Nullness> findNullnessOf(XMethod method) {
