@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'com.diffplug.gradle.spotless' version '3.24.1'
+    id 'com.diffplug.gradle.spotless' version '3.24.2'
     id 'net.ltgt.errorprone' version '0.8.1'
 }
 
