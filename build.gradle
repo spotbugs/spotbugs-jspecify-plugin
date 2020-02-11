@@ -11,19 +11,39 @@ apply from: "$rootDir/gradle/publish.gradle"
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-repositories { mavenCentral() }
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
 
 ext {
     junitVersion = '5.6.0'
     errorproneVersion = '2.3.4'
+    spotbugsVersion = '4.0.0-RC3'
+}
+
+configurations {
+    xsd {
+        transitive = false
+    }
 }
 
 dependencies {
-    implementation "info.codeanalysis:codeanalysis-annotations:0.1.0-SNAPSHOT"
+    compileOnly name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
+    compileOnly "com.github.spotbugs:spotbugs:${spotbugsVersion}"
+    xsd "com.github.spotbugs:spotbugs:${spotbugsVersion}"
+    testCompileOnly name: "codeanalysis-annotations-0.1.0-SNAPSHOT"
+    testCompile "org.assertj:assertj-core:3.11.1"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testImplementation "com.github.spotbugs:test-harness-jupiter:${spotbugsVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testImplementation "com.github.spotbugs:spotbugs:${spotbugsVersion}"
     errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
 }
+
+// apply from: "$rootDir/gradle/xsd-validator.gradle"
 
 test { useJUnitPlatform() }
 
