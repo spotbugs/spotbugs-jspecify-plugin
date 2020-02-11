@@ -1,56 +1,3 @@
-// https://stackoverflow.com/a/53238842/814928
-import javax.xml.*;
-import javax.xml.parsers.*;
-import javax.xml.validation.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamSource;
-
-import org.w3c.dom.Document;
-
-
-class XmlValidate extends DefaultTask {
-    @InputFiles
-    private FileCollection xmlFiles
-
-    @InputFile
-    File xsd
-
-    void xml(Object files) {
-        FileCollection fc = project.files(files)
-        this.xmlFiles = this.xmlFiles == null ?  fc : this.xmlFiles.add(fc)
-    }
-
-    @TaskAction
-    public void validateXml() {
-        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-        Validator validator = null
-        if (xsd != null) {
-            SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-            Schema schema = factory.newSchema(new StreamSource(xsd))
-            validator = schema.newValidator()
-        }
-        Set<File> failures = [] as Set
-        xmlFiles.forEach {
-            Document document = null
-            try {
-                document = parser.parse(it)
-            } catch (Exception e) {
-                logger.error("Error parsing $it", e)
-                failures << it
-            }
-            if (document && validator) {
-                try {
-                    validator.validate(new DOMSource(document))
-                } catch (Exception e) {
-                    logger.error("Error validating $it", e)
-                    failures << it
-                }
-            }
-        }
-        if (failures) throw new GradleException("xml validation failures $failures")
-    }
-}
-
 task unzipXsd(type: Copy) {
     from zipTree(configurations.xsd.singleFile).matching {
         include 'findbugsplugin.xsd'
@@ -59,16 +6,38 @@ task unzipXsd(type: Copy) {
     into "$buildDir/xsd"
 }
 
-task validateFindBugsXml(type: XmlValidate) {
+task validateFindBugsXml {
+    doFirst {
+        ant {
+            schemavalidate (
+                    file: 'src/main/resources/findbugs.xml',
+                    noNamespaceFile: "$buildDir/xsd/findbugsplugin.xsd"
+                    ) {
+                        schema(
+                                namespace: "http://www.w3.org/2001/XMLSchema-instance",
+                                file: "$buildDir/xsd/findbugsplugin.xsd"
+                                )
+                    }
+        }
+    }
     dependsOn unzipXsd
-    xml file('src/main/resources/findbugs.xml')
-    xsd file("$buildDir/xsd/findbugsplugin.xsd")
 }
 
-task validateMessageXml(type: XmlValidate) {
+task validateMessageXml {
+    doFirst {
+        ant {
+            schemavalidate (
+                    file: 'src/main/resources/messages.xml',
+                    noNamespaceFile: "$buildDir/xsd/messagecollection.xsd"
+                    ) {
+                        schema (
+                                namespace: "http://www.w3.org/2001/XMLSchema",
+                                file: "$buildDir/xsd/messagecollection.xsd"
+                                )
+                    }
+        }
+    }
     dependsOn unzipXsd
-    xml file('src/main/resources/messages.xml')
-    xsd file("$buildDir/xsd/messagecollection.xsd")
 }
 
 task validateXml {

@@ -43,7 +43,7 @@ dependencies {
     errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
 }
 
-// apply from: "$rootDir/gradle/xsd-validator.gradle"
+apply from: "$rootDir/gradle/xsd-validator.gradle"
 
 test { useJUnitPlatform() }
 
