@@ -21,7 +21,7 @@ repositories {
 ext {
     junitVersion = '5.5.1'
     errorproneVersion = '2.3.3'
-    spotbugsVersion = '4.0.0-beta3'
+    spotbugsVersion = '4.0.0-RC3'
 }
 
 configurations {
