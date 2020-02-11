@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
-import codeanalysis.experimental.annotations.NotNull;
+import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
+import edu.umd.cs.findbugs.classfile.IAnalysisCache;
+import edu.umd.cs.findbugs.classfile.IDatabaseFactory;
 
-class AnnotatedWithNullable {}
+class NullnessDatabaseFactory implements IDatabaseFactory<NullnessDatabase> {
 
-class AnnotatedWithNotNull {
-  @NotNull
-  Object method() {
-    return null;
+  @Override
+  public NullnessDatabase createDatabase() throws CheckedAnalysisException {
+    // TODO load nullness info of JDK from packaged resource file
+    return new NullnessDatabase();
   }
 
-  @NotNull
-  Object needMerge() {
-    Object result;
-    if (System.currentTimeMillis() %2 == 0) {
-      result = null;
-    } else {
-      result = "not null";
-    }
-    return result;
+  @Override
+  public void registerWith(IAnalysisCache analysisCache) {
+    throw new AssertionError("Should be unachievable");
   }
 }

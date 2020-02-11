@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,14 +30,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(SpotBugsExtension.class)
 class NullnessDatabaseTest {
   static final Path PATH =
-      Paths.get("build/classes/java/test/com/github/spotbugs/cansada/nullness");
+      Paths.get("build/classes/java/test/com/github/spotbugs/jspecify/nullness");
 
   @Test
   void test(SpotBugsRunner spotbugs) {
     BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNotNull.class"));
     Condition<BugInstance> condition =
         new BugInstanceConditionBuilder()
-            .bugType("CANSADA_RETURN_UNEXPECTED_NULL")
+            .bugType("JSPECIFY_RETURN_UNEXPECTED_NULL")
             .atLine(25)
             .build();
     assertThat(bugs).haveExactly(1, condition);
@@ -47,7 +47,7 @@ class NullnessDatabaseTest {
     BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNotNull.class"));
     Condition<BugInstance> condition =
         new BugInstanceConditionBuilder()
-            .bugType("CANSADA_RETURN_UNEXPECTED_NULL")
+            .bugType("JSPECIFY_RETURN_UNEXPECTED_NULL")
             .atLine(36)
             .build();
     assertThat(bugs).haveExactly(1, condition);

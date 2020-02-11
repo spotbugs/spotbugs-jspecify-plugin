@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.BugReporter;
@@ -43,7 +43,7 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
           Nullness nullness = (Nullness) item.getUserValue();
           if (item.isNull() || (nullness != null && nullness.canBeNull())) {
             reporter.reportBug(
-                new BugInstance("CANSADA_RETURN_UNEXPECTED_NULL", Priorities.HIGH_PRIORITY)
+                new BugInstance("JSPECIFY_RETURN_UNEXPECTED_NULL", Priorities.HIGH_PRIORITY)
                     .addClassAndMethod(this)
                     .addSourceLine(this));
           }

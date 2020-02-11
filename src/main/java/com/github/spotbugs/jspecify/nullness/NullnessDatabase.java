@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
 import edu.umd.cs.findbugs.ba.XMethod;
 import java.util.List;

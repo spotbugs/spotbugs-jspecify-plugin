@@ -8,13 +8,13 @@
 			definitions artifact.</Details>
 	</Plugin>
 
-  <Detector class="com.github.spotbugs.cansada.nullness.ReturnUnexpectedNullDetector">
+  <Detector class="com.github.spotbugs.jspecify.nullness.ReturnUnexpectedNullDetector">
     <Details>
       Detector that founds method that returns null unexpectedly.
     </Details>
   </Detector>
 
-  <BugPattern type="CANSADA_RETURN_UNEXPECTED_NULL">
+  <BugPattern type="JSPECIFY_RETURN_UNEXPECTED_NULL">
     <ShortDescription>Method returns null unexpectedly.</ShortDescription>
     <LongDescription>
       This method should return non-null value, but it returns nullable value.

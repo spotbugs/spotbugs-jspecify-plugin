@@ -8,7 +8,7 @@ publishing {
                 artifactId = 'spotbugs-codeanalysis-annotation-plugin'
                 name = 'SpotBugs CodeAnalysis Annotation Plugin'
                 description = 'SpotBugs plugin that works with new standard annotation definitions artifact'
-                url = 'https://github.com/KengoTODA/spotbugs-cansada-plugin'
+                url = 'https://github.com/KengoTODA/spotbugs-jspecify-plugin'
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
@@ -16,9 +16,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = 'scm:git:git@github.com:KengoTODA/spotbugs-cansada-plugin.git'
-                    developerConnection = 'scm:git:git@github.com:KengoTODA/spotbugs-cansada-plugin.git'
-                    url = 'https://github.com/KengoTODA/spotbugs-cansada-plugin/'
+                    connection = 'scm:git:git@github.com:KengoTODA/spotbugs-jspecify-plugin.git'
+                    developerConnection = 'scm:git:git@github.com:KengoTODA/spotbugs-jspecify-plugin.git'
+                    url = 'https://github.com/KengoTODA/spotbugs-jspecify-plugin/'
                 }
             }
         }

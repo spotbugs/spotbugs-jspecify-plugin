@@ -13,15 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
-import edu.umd.cs.findbugs.classfile.IAnalysisCache;
-import edu.umd.cs.findbugs.classfile.IAnalysisEngineRegistrar;
+import codeanalysis.experimental.annotations.NotNull;
 
-public class NullnessEngineRegistrar implements IAnalysisEngineRegistrar {
+class AnnotatedWithNullable {}
 
-  @Override
-  public void registerAnalysisEngines(IAnalysisCache analysisCache) {
-    analysisCache.registerDatabaseFactory(NullnessDatabase.class, new NullnessDatabaseFactory());
+class AnnotatedWithNotNull {
+  @NotNull
+  Object method() {
+    return null;
+  }
+
+  @NotNull
+  Object needMerge() {
+    Object result;
+    if (System.currentTimeMillis() %2 == 0) {
+      result = null;
+    } else {
+      result = "not null";
+    }
+    return result;
   }
 }

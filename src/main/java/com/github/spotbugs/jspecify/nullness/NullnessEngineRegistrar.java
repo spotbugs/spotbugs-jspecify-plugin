@@ -13,22 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.spotbugs.cansada.nullness;
+package com.github.spotbugs.jspecify.nullness;
 
-import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
 import edu.umd.cs.findbugs.classfile.IAnalysisCache;
-import edu.umd.cs.findbugs.classfile.IDatabaseFactory;
+import edu.umd.cs.findbugs.classfile.IAnalysisEngineRegistrar;
 
-class NullnessDatabaseFactory implements IDatabaseFactory<NullnessDatabase> {
-
-  @Override
-  public NullnessDatabase createDatabase() throws CheckedAnalysisException {
-    // TODO load nullness info of JDK from packaged resource file
-    return new NullnessDatabase();
-  }
+public class NullnessEngineRegistrar implements IAnalysisEngineRegistrar {
 
   @Override
-  public void registerWith(IAnalysisCache analysisCache) {
-    throw new AssertionError("Should be unachievable");
+  public void registerAnalysisEngines(IAnalysisCache analysisCache) {
+    analysisCache.registerDatabaseFactory(NullnessDatabase.class, new NullnessDatabaseFactory());
   }
 }
