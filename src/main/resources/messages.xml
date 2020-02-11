@@ -25,4 +25,5 @@
 ]]>
     </Details>
   </BugPattern>
+  <BugCode abbrev="JSPECIFY">JSPECIFY</BugCode>
 </MessageCollection>
