@@ -24,6 +24,7 @@ import edu.umd.cs.findbugs.test.SpotBugsRunner;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.assertj.core.api.Condition;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -42,7 +43,9 @@ class NullnessDatabaseTest {
             .build();
     assertThat(bugs).haveExactly(1, condition);
   }
+
   @Test
+  @Disabled("not implemented yet")
   void testNeedMerge(SpotBugsRunner spotbugs) {
     BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNotNull.class"));
     Condition<BugInstance> condition =

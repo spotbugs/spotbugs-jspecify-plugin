@@ -28,7 +28,7 @@ class AnnotatedWithNotNull {
   @NotNull
   Object needMerge() {
     Object result;
-    if (System.currentTimeMillis() %2 == 0) {
+    if (System.currentTimeMillis() % 2 == 0) {
       result = null;
     } else {
       result = "not null";
