@@ -42,4 +42,14 @@ class NullnessDatabaseTest {
             .build();
     assertThat(bugs).haveExactly(1, condition);
   }
+  @Test
+  void testNeedMerge(SpotBugsRunner spotbugs) {
+    BugCollection bugs = spotbugs.performAnalysis(PATH.resolve("AnnotatedWithNotNull.class"));
+    Condition<BugInstance> condition =
+        new BugInstanceConditionBuilder()
+            .bugType("CANSADA_RETURN_UNEXPECTED_NULL")
+            .atLine(36)
+            .build();
+    assertThat(bugs).haveExactly(1, condition);
+  }
 }
