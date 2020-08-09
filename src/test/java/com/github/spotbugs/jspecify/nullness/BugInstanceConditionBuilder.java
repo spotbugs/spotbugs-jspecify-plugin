@@ -15,19 +15,16 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
-import codeanalysis.experimental.annotations.DefaultNotNull;
-import codeanalysis.experimental.annotations.Nullable;
-import edu.umd.cs.findbugs.BugAnnotation;
-import edu.umd.cs.findbugs.BugInstance;
-import edu.umd.cs.findbugs.ClassAnnotation;
-import edu.umd.cs.findbugs.MethodAnnotation;
-import edu.umd.cs.findbugs.SourceLineAnnotation;
+import edu.umd.cs.findbugs.*;
+import org.assertj.core.api.Condition;
+import org.jspecify.annotations.DefaultNonNull;
+import org.jspecify.annotations.Nullable;
+
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.assertj.core.api.Condition;
 
-@DefaultNotNull
+@DefaultNonNull
 public class BugInstanceConditionBuilder {
   private static final Pattern ANON_FUNCTION_SCALA_PATTERN =
       Pattern.compile("\\$\\$anonfun\\$([^\\$]+)\\$");

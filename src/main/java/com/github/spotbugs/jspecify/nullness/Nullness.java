@@ -15,7 +15,8 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
-import codeanalysis.experimental.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+
 import java.util.Optional;
 
 enum Nullness {
@@ -40,17 +41,9 @@ enum Nullness {
     }
 
     switch (descriptor) {
-      case "Lcodeanalysis/experimental/annotations/NullnessUnknown;":
-      case "codeanalysis/experimental/annotations/NullnessUnknown":
-      case "codeanalysis.experimental.annotations.NullnessUnknown":
-        return Optional.of(UNKNOWN);
-      case "Lcodeanalysis/experimental/annotations/Nullable;":
-      case "codeanalysis/experimental/annotations/Nullable":
-      case "codeanalysis.experimental.annotations.Nullable":
-        return Optional.of(NULLABLE);
-      case "Lcodeanalysis/experimental/annotations/NotNull;":
-      case "codeanalysis/experimental/annotations/NotNull":
-      case "codeanalysis.experimental.annotations.NotNull":
+      case "Lorg/jspecify/annotations/Nullable;":
+      case "org/jspecify/annotations/Nullable":
+      case "org.jspecify.annotations.Nullable":
         return Optional.of(NOT_NULL);
       default:
         return Optional.empty();

@@ -15,17 +15,16 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
-import codeanalysis.experimental.annotations.NotNull;
+import org.jspecify.annotations.DefaultNonNull;
 
 class AnnotatedWithNullable {}
 
+@DefaultNonNull
 class AnnotatedWithNotNull {
-  @NotNull
   Object method() {
     return null;
   }
 
-  @NotNull
   Object needMerge() {
     Object result;
     if (System.currentTimeMillis() % 2 == 0) {
