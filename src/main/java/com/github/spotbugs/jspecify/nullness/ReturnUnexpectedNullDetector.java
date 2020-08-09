@@ -22,9 +22,10 @@ import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.classfile.Global;
+import org.apache.bcel.Const;
+
 import java.util.Objects;
 import java.util.Optional;
-import org.apache.bcel.Const;
 
 @CustomUserValue
 public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
@@ -56,7 +57,8 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
   boolean isTargetMethod() {
     // TODO does it work with lambda?
     NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
-    Optional<Nullness> optional = database.findNullnessOf(getXMethod());
+    Optional<Nullness> optional =
+        database.findNullnessOf(getXClass(), getXMethod(), Global.getAnalysisCache());
     return optional.isPresent() && !optional.get().canBeNull();
   }
 
@@ -68,7 +70,9 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
       case Const.INVOKESTATIC:
       case Const.INVOKEVIRTUAL:
         NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
-        Optional<Nullness> optional = database.findNullnessOf(getXMethodOperand());
+        Optional<Nullness> optional =
+            database.findNullnessOf(
+                getXClassOperand(), getXMethodOperand(), Global.getAnalysisCache());
         super.afterOpcode(code);
         optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
         return;

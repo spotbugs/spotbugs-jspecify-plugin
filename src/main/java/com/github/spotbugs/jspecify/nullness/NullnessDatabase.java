@@ -15,32 +15,64 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
+import edu.umd.cs.findbugs.ba.XClass;
 import edu.umd.cs.findbugs.ba.XMethod;
-import java.util.List;
+import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
+import edu.umd.cs.findbugs.classfile.DescriptorFactory;
+import edu.umd.cs.findbugs.classfile.IAnalysisCache;
+import edu.umd.cs.findbugs.classfile.analysis.AnnotationValue;
+import edu.umd.cs.findbugs.internalAnnotations.DottedClassName;
+import edu.umd.cs.findbugs.internalAnnotations.SlashedClassName;
+import edu.umd.cs.findbugs.util.ClassName;
+
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 class NullnessDatabase {
-  Optional<Nullness> findNullnessOf(XMethod method) {
+  Optional<Nullness> findNullnessOf(XClass clazz, XMethod method, IAnalysisCache cache) {
     // TODO cache
     if (!method.isReturnTypeReferenceType()) {
       return Optional.empty();
     }
 
-    List<Nullness> nullnesses =
-        method.getAnnotationDescriptors().stream()
-            .map(desc -> Nullness.from(desc.getClassName()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toList());
-    final Nullness nullness;
-    if (nullnesses.isEmpty()) {
-      nullness = Nullness.UNKNOWN;
-    } else if (nullnesses.size() == 1) {
-      nullness = nullnesses.get(0);
+    return findNullnessOfMethod(method)
+        .or(() -> findDefaultNullnessOfClass(clazz))
+        .or(() -> findDefaultNullnessOfPackage(clazz.getClassDescriptor().getPackageName(), cache));
+  }
+
+  private Optional<Nullness> findNullnessOfMethod(XMethod method) {
+    return method.getAnnotationDescriptors().stream()
+        .map(desc -> Nullness.from(desc.getClassName()))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst();
+  }
+
+  // TODO check interface and super classes
+  private Optional<Nullness> findDefaultNullnessOfClass(XClass clazz) {
+    AnnotationValue annotation =
+        clazz.getAnnotation(
+            DescriptorFactory.createClassDescriptor("org/jspecify/annotations/DefaultNonNull"));
+    if (annotation != null) {
+      return Optional.of(Nullness.NOT_NULL);
     } else {
-      throw new RuntimeException("Found multiple nullness annotations on methods");
+      return Optional.empty();
     }
-    return Optional.of(nullness);
+  }
+
+  private Optional<Nullness> findDefaultNullnessOfPackage(
+      @DottedClassName String packageName, IAnalysisCache cache) {
+    @SlashedClassName
+    String packageInfoClassName = ClassName.toSlashedClassName(packageName) + "/package-info";
+    try {
+      XClass clazz =
+          cache.getClassAnalysis(
+              XClass.class, DescriptorFactory.createClassDescriptor(packageInfoClassName));
+      if (clazz == null) {
+        return Optional.empty();
+      }
+      return findDefaultNullnessOfClass(clazz);
+    } catch (CheckedAnalysisException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

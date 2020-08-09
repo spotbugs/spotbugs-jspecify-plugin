@@ -1,0 +1,32 @@
+name: Sphinx Document
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    paths:
+      - 'docs/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - run: |
+          docker build -t jspecify-sphinx docs
+          docker run --rm -v $(pwd)/docs:/docs jspecify-sphinx make html
+          docker run --rm -v $(pwd)/docs:/docs jspecify-sphinx make -e SPHINXOPTS="-D language='ja'" -e BUILDDIR="_build-ja" html
+          docker run --rm -v $(pwd)/docs:/docs jspecify-sphinx cp -R _build-ja/html _build/html/ja
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: document
+          path: docs/_build/html
+
+      - uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: docs/_build/html
+        if: github.event_name == 'push'

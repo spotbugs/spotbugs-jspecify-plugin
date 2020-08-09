@@ -19,7 +19,7 @@
  *
  * @see <a href="https://codeanalysis.info/">the CodeAnalysis Annotation</a>
  */
-@DefaultNotNull
+@DefaultNonNull
 package com.github.spotbugs.jspecify;
 
-import codeanalysis.experimental.annotations.DefaultNotNull;
+import org.jspecify.annotations.DefaultNonNull;
