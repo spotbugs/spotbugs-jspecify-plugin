@@ -15,9 +15,8 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Optional;
+import org.jspecify.annotations.Nullable;
 
 enum Nullness {
   UNKNOWN(true),

@@ -15,19 +15,18 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import edu.umd.cs.findbugs.BugCollection;
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.test.SpotBugsExtension;
 import edu.umd.cs.findbugs.test.SpotBugsRunner;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpotBugsExtension.class)
 class NullnessDatabaseTest {

@@ -22,10 +22,9 @@ import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.classfile.Global;
-import org.apache.bcel.Const;
-
 import java.util.Objects;
 import java.util.Optional;
+import org.apache.bcel.Const;
 
 @CustomUserValue
 public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
