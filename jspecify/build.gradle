@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
     id 'com.diffplug.spotless'
     id 'net.ltgt.errorprone'
-    id 'org.javamodularity.moduleplugin' version '1.7.0'
+    id 'org.javamodularity.moduleplugin' version '1.8.7'
 }
 
 apply from: "gradle/format.gradle"
@@ -12,7 +12,7 @@ apply from: "gradle/publish.gradle"
 repositories { mavenCentral() }
 
 ext {
-    junitVersion = '5.7.1'
+    junitVersion = '5.7.2'
     errorproneVersion = '2.5.1'
 }
 
