@@ -17,7 +17,7 @@ repositories {
 
 ext {
     junitVersion = '5.7.1'
-    errorproneVersion = '2.5.1'
+    errorproneVersion = '2.8.0'
     spotbugsVersion = '4.2.1'
 }
 
