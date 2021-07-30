@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindbugsPlugin
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	pluginid="com.github.spotbugs.jspecify"
+	provider="SpotBugs Team"
+	website="https://github.com/KengoTODA/spotbugs-jspecify-plugin">
+	<Detector class="com.github.spotbugs.jspecify.nullness.ReturnUnexpectedNullDetector" reports="JSPECIFY_RETURN_UNEXPECTED_NULL" speed="fast" />
+	<EngineRegistrar class="com.github.spotbugs.jspecify.nullness.NullnessEngineRegistrar"/>
+	<BugPattern abbrev="JSPECIFY" type="JSPECIFY_RETURN_UNEXPECTED_NULL" category="CORRECTNESS" />
+</FindbugsPlugin>

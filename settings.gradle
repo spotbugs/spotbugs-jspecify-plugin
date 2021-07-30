@@ -1,0 +1,2 @@
+rootProject.name = 'spotbugs-jspecify-plugin'
+includeBuild '../jspecify'

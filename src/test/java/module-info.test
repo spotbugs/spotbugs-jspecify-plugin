@@ -1,0 +1,2 @@
+--add-reads
+  com.github.spotbugs.jspecify=java.compiler

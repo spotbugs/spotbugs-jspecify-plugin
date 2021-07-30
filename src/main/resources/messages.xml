@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MessageCollection
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<Plugin>
+		<ShortDescription>SpotBugs CodeAnalysis Annotation Plugin</ShortDescription>
+		<Details>SpotBugs plugin that works with the new standard annotation
+			definitions artifact.</Details>
+	</Plugin>
+
+  <Detector class="com.github.spotbugs.jspecify.nullness.ReturnUnexpectedNullDetector">
+    <Details>
+      Detector that founds method that returns null unexpectedly.
+    </Details>
+  </Detector>
+
+  <BugPattern type="JSPECIFY_RETURN_UNEXPECTED_NULL">
+    <ShortDescription>Method returns null unexpectedly.</ShortDescription>
+    <LongDescription>
+      This method should return non-null value, but it returns nullable value.
+    </LongDescription>
+    <Details>
+<![CDATA[
+<p>This method should return non-null value, but it returns nullable value.</p>
+]]>
+    </Details>
+  </BugPattern>
+  <BugCode abbrev="JSPECIFY">JSPECIFY</BugCode>
+</MessageCollection>
