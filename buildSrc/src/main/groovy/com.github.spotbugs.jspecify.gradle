@@ -41,6 +41,7 @@ tasks.named('compileTestJava') {
 
 tasks.withType(Test) {
     useJUnitPlatform()
+    maxParallelForks 4
     moduleOptions {
         // test-harness modules do not support Java module
         // https://github.com/spotbugs/spotbugs/issues/1627
