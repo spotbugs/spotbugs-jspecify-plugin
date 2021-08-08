@@ -9,7 +9,7 @@ repositories {
 }
 
 val spotbugsVersion = "4.3.0"
-val jspecifyVersion = "0.1.0-SNAPSHOT"
+val jspecifyVersion = "0.2.0"
 
 dependencies {
     compileOnly("com.github.spotbugs:spotbugs:$spotbugsVersion")
