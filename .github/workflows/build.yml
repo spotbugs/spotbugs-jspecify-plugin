@@ -34,4 +34,4 @@ jobs:
       - name: Build
         working-directory: spotbugs-jspecify-plugin
         run: |
-          ./gradlew spotlessCheck build --no-daemon --include-build ../jspecify
+          ./gradlew spotlessCheck build --no-daemon
