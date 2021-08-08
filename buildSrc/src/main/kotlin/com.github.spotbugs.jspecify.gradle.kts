@@ -75,12 +75,12 @@ publishing {
                 url.set("https://github.com/spotbugs/spotbugs-jspecify-plugin")
                 licenses {
                     license {
-                        name.set("The Apache License, Version 2.0")
+                        name.set("GNU Affero General Public License, Version 3.0")
                     }
-                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    url.set("https://www.gnu.org/licenses/agpl-3.0.html")
                 }
                 scm {
-                    connection.set("scm:git:git@github.com:spotbugs/c-jspecify-plugin.git")
+                    connection.set("scm:git:git@github.com:spotbugs/spotbugs-jspecify-plugin.git")
                     developerConnection.set("scm:git:git@github.com:spotbugs/spotbugs-jspecify-plugin.git")
                     url.set("https://github.com/spotbugs/spotbugs-jspecify-plugin/")
                 }

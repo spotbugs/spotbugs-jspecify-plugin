@@ -16,3 +16,6 @@ cd spotbugs-jspecify-plugin
 ./gradlew
 ```
 
+## Copyright
+
+Copyright &copy; 2021 SpotBugs Team
