@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
 import edu.umd.cs.findbugs.classfile.DescriptorFactory;
 import edu.umd.cs.findbugs.classfile.IAnalysisCache;
+import edu.umd.cs.findbugs.classfile.MissingClassException;
 import edu.umd.cs.findbugs.classfile.analysis.AnnotationValue;
 import edu.umd.cs.findbugs.internalAnnotations.DottedClassName;
 import edu.umd.cs.findbugs.internalAnnotations.SlashedClassName;
@@ -29,7 +30,7 @@ import java.util.Optional;
 class NullnessDatabase {
   Optional<Nullness> findNullnessOf(XClass clazz, XMethod method, IAnalysisCache cache) {
     // TODO cache
-    if (!method.isReturnTypeReferenceType()) {
+    if (method == null || !method.isReturnTypeReferenceType()) {
       return Optional.empty();
     }
 
@@ -70,6 +71,9 @@ class NullnessDatabase {
         return Optional.empty();
       }
       return findDefaultNullnessOfClass(clazz);
+    } catch (MissingClassException e) {
+      // no package-info.class found
+      return Optional.empty();
     } catch (CheckedAnalysisException e) {
       throw new RuntimeException(e);
     }

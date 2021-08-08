@@ -33,7 +33,8 @@ import java.util.stream.Stream;
  *     syntax of special comment</a>
  */
 class DiagnosticBuilder {
-  private static final String BUGTYPE_NULLNESS_MISMATCH = "TBU";
+  private static final String BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE =
+      "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE";
 
   static final class WithLine<E> {
     int line;
@@ -59,12 +60,13 @@ class DiagnosticBuilder {
     try (Stream<String> lines = Files.lines(javaFile.toPath(), StandardCharsets.UTF_8)) {
       return lines
           .map(counter::next)
-          .filter(withLine -> withLine.element.matches("jspecify_nullness_mismatch"))
+          .filter(
+              withLine -> withLine.element.matches("jspecify_nullness_intrinsically_not_nullable"))
           .map(
               withLine ->
                   new BugInstanceMatcherBuilder()
                       .atLine(withLine.line + 1)
-                      .bugType(BUGTYPE_NULLNESS_MISMATCH)
+                      .bugType(BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE)
                       .build())
           .collect(Collectors.toList());
     }

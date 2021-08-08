@@ -4,7 +4,9 @@
 	pluginid="com.github.spotbugs.jspecify"
 	provider="SpotBugs Team"
 	website="https://github.com/KengoTODA/spotbugs-jspecify-plugin">
+	<Detector class="com.github.spotbugs.jspecify.nullness.NeedlessAnnotationDetector" reports="JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE" speed="fast" />
 	<Detector class="com.github.spotbugs.jspecify.nullness.ReturnUnexpectedNullDetector" reports="JSPECIFY_RETURN_UNEXPECTED_NULL" speed="fast" />
 	<EngineRegistrar class="com.github.spotbugs.jspecify.nullness.NullnessEngineRegistrar"/>
+	<BugPattern abbrev="JSPECIFY" type="JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE" category="CORRECTNESS" />
 	<BugPattern abbrev="JSPECIFY" type="JSPECIFY_RETURN_UNEXPECTED_NULL" category="CORRECTNESS" />
 </FindbugsPlugin>

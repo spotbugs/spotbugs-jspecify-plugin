@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.OpcodeStack.CustomUserValue;
 import edu.umd.cs.findbugs.OpcodeStack.Item;
 import edu.umd.cs.findbugs.Priorities;
+import edu.umd.cs.findbugs.ba.XMethod;
 import edu.umd.cs.findbugs.bcel.OpcodeStackDetector;
 import edu.umd.cs.findbugs.classfile.Global;
 import java.util.Objects;
@@ -68,13 +69,14 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
       case Const.INVOKESPECIAL:
       case Const.INVOKESTATIC:
       case Const.INVOKEVIRTUAL:
+        XMethod methodOperand = getXMethodOperand();
         NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
         Optional<Nullness> optional =
-            database.findNullnessOf(
-                getXClassOperand(), getXMethodOperand(), Global.getAnalysisCache());
+            database.findNullnessOf(getXClassOperand(), methodOperand, Global.getAnalysisCache());
         super.afterOpcode(code);
         optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
         return;
+        // constructor has no returned value
       default:
         super.afterOpcode(code);
     }
