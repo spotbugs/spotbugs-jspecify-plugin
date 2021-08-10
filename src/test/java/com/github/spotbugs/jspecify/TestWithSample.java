@@ -17,6 +17,7 @@ package com.github.spotbugs.jspecify;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import edu.umd.cs.findbugs.BugCollection;
 import edu.umd.cs.findbugs.test.SpotBugsExtension;
@@ -42,6 +43,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 /** Run test with samples bundled to the JSpecify project. */
 @ExtendWith(SpotBugsExtension.class)
 class TestWithSample {
+  private static final String ABBREV = "JSPECIFY";
+
   // TODO resolve version dynamically
   private static final Path JAR =
       Paths.get("..", "jspecify", "build", "libs", "jspecify-0.1.0-SNAPSHOT.jar")
@@ -69,7 +72,18 @@ class TestWithSample {
       List<BugInstanceMatcher> expectedBugs = new DiagnosticBuilder().build(javaFile);
       BugCollection bugs = spotbugs.performAnalysis(classFileDir.toPath());
       expectedBugs.forEach(expectedBug -> assertThat(bugs, hasItem(expectedBug)));
+      assertEquals(expectedBugs.size(), countJSpecifyBugs(bugs));
     }
+  }
+
+  /**
+   * Count bugs detected by JSpecify plugin.
+   *
+   * @param bugs non-null {@link BugCollection} instance
+   * @return count of bugs detected by JSpecify plugin.
+   */
+  private long countJSpecifyBugs(BugCollection bugs) {
+    return bugs.getCollection().stream().filter(bug -> ABBREV.equals(bug.getAbbrev())).count();
   }
 
   private void compile(
