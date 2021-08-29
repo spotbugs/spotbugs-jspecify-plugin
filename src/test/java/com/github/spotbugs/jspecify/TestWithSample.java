@@ -47,7 +47,7 @@ class TestWithSample {
 
   // TODO resolve version dynamically
   private static final Path JAR =
-      Paths.get("..", "jspecify", "build", "libs", "jspecify-0.1.0-SNAPSHOT.jar")
+      Paths.get("..", "jspecify", "build", "libs", "jspecify-0.0.0-SNAPSHOT.jar")
           .toAbsolutePath()
           .normalize();
 
