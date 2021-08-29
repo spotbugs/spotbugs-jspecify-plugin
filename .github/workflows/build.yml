@@ -28,3 +28,8 @@ jobs:
         working-directory: spotbugs-jspecify-plugin
         run: |
           ./gradlew spotlessCheck build --no-daemon
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Reports
+          path: spotbugs-jspecify-plugin/build/reports/
