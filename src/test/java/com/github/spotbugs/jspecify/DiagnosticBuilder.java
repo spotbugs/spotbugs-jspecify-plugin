@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,13 +38,30 @@ class DiagnosticBuilder {
   private static final String BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE =
       "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE";
 
+  private static final Map<String, String> COMMENT_TO_BUGTYPE =
+      Map.of(
+          "jspecify_nullness_intrinsically_not_nullable",
+          BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE);
+
   static final class WithLine<E> {
-    int line;
-    E element;
+    final int line;
+    final E element;
 
     WithLine(int line, E element) {
       this.line = line;
       this.element = element;
+    }
+  }
+
+  static final class WithBugType<E> {
+    final int line;
+    final E element;
+    final String bugType;
+
+    WithBugType(int line, E element, String bugType) {
+      this.line = line;
+      this.element = element;
+      this.bugType = Objects.requireNonNull(bugType);
     }
   }
 
@@ -60,15 +79,24 @@ class DiagnosticBuilder {
     try (Stream<String> lines = Files.lines(javaFile.toPath(), StandardCharsets.UTF_8)) {
       return lines
           .map(counter::next)
-          .filter(
-              withLine -> withLine.element.matches("jspecify_nullness_intrinsically_not_nullable"))
+          .flatMap(this::findBugType)
           .map(
-              withLine ->
+              withBugType ->
                   new BugInstanceMatcherBuilder()
-                      .atLine(withLine.line + 1)
-                      .bugType(BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE)
+                      .atLine(withBugType.line + 1)
+                      .bugType(withBugType.bugType)
                       .build())
           .collect(Collectors.toList());
     }
+  }
+
+  private Stream<WithBugType<String>> findBugType(WithLine<String> withLine) {
+    return COMMENT_TO_BUGTYPE.entrySet().stream()
+        .flatMap(
+            commentToBugType ->
+                withLine.element.contains(commentToBugType.getKey())
+                    ? Stream.of(commentToBugType.getValue())
+                    : Stream.empty())
+        .map(bugType -> new WithBugType<>(withLine.line, withLine.element, bugType));
   }
 }
