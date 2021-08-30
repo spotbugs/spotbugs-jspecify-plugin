@@ -19,9 +19,13 @@ import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.BytecodeScanningDetector;
 import edu.umd.cs.findbugs.Priorities;
+import edu.umd.cs.findbugs.ba.AnalysisContext;
+import edu.umd.cs.findbugs.internalAnnotations.DottedClassName;
+import edu.umd.cs.findbugs.util.ClassName;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import org.apache.bcel.Repository;
 import org.apache.bcel.classfile.ElementValue;
 import org.apache.bcel.generic.Type;
 
@@ -36,23 +40,59 @@ public class NeedlessAnnotationDetector extends BytecodeScanningDetector {
   }
 
   @Override
+  public void visitAnnotation(
+      @DottedClassName String annotationClass,
+      Map<String, ElementValue> map,
+      boolean runtimeVisible) {
+    if (visitingField()) {
+      doVisit(getField().getType(), annotationClass);
+    }
+    super.visitAnnotation(annotationClass, map, runtimeVisible);
+  }
+
+  @Override
   public void visitParameterAnnotation(
-      int p, String annotationClass, Map<String, ElementValue> map, boolean runtimeVisible) {
+      int p,
+      @DottedClassName String annotationClass,
+      Map<String, ElementValue> map,
+      boolean runtimeVisible) {
+    doVisit(getMethod().getArgumentTypes()[p], annotationClass);
+    super.visitParameterAnnotation(p, annotationClass, map, runtimeVisible);
+  }
+
+  private boolean isEnum(Type type) throws ClassNotFoundException {
+    String className = ClassName.fromFieldSignature(type.getSignature());
+    if (className != null) {
+      return Repository.lookupClass(className).isEnum();
+    } else {
+      return false;
+    }
+  }
+
+  private void doVisit(Type type, @DottedClassName String annotationClass) {
+    try {
+      if (!INTRINSICALLY_NOT_NULLABLE_TYPES.contains(type) && !isEnum(type)) {
+        return;
+      }
+    } catch (ClassNotFoundException e) {
+      AnalysisContext.reportMissingClass(e);
+      return;
+    }
+
+    System.err.printf("annotation %s on the type %s%n", annotationClass, type.getSignature());
     Nullness.from(annotationClass)
-        .map(nullness -> nullness.canBeNull())
+        .filter(Nullness::canBeNull)
         .ifPresent(
             nullness -> {
-              Type type = getMethod().getArgumentTypes()[p];
-              if (INTRINSICALLY_NOT_NULLABLE_TYPES.contains(type)) {
-                BugInstance bug =
-                    new BugInstance(
-                            "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE",
-                            Priorities.HIGH_PRIORITY)
-                        .addClassAndMethod(this)
-                        .addSourceLine(this);
-                reporter.reportBug(bug);
+              BugInstance bug =
+                  new BugInstance(
+                      "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY);
+              if (visitingField()) {
+                bug.addClass(this).addField(this);
+              } else if (visitingMethod()) {
+                bug.addClassAndMethod(this).addSourceLine(this);
               }
+              reporter.reportBug(bug);
             });
-    super.visitParameterAnnotation(p, annotationClass, map, runtimeVisible);
   }
 }
