@@ -14,6 +14,8 @@ val jspecifyVersion = "0.2.0"
 dependencies {
     compileOnly("com.github.spotbugs:spotbugs:$spotbugsVersion")
     compileOnly("org.jspecify:jspecify:$jspecifyVersion")
+    compileOnly("org.slf4j:slf4j-api:2.0.0-alpha5")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1")
     testImplementation("com.github.spotbugs:spotbugs:$spotbugsVersion")
     testImplementation("com.github.spotbugs:test-harness:$spotbugsVersion")
     testImplementation("com.github.spotbugs:test-harness-core:$spotbugsVersion")

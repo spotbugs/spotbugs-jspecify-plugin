@@ -35,6 +35,7 @@ import java.util.stream.Stream;
  *     syntax of special comment</a>
  */
 class DiagnosticBuilder {
+  private static final String BUGTYPE_CONFLICTING_ANNOTATIONS = "JSPECIFY_CONFLICTING_ANNOTATIONS";
   private static final String BUGTYPE_NULLNESS_INTRINSICALLY_NOT_NULLABLE =
       "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE";
 
@@ -83,7 +84,8 @@ class DiagnosticBuilder {
           .map(
               withBugType ->
                   new BugInstanceMatcherBuilder()
-                      .atLine(withBugType.line + 1)
+                      // TODO Field has no line number table
+                      //                      .atLine(withBugType.line + 1)
                       .bugType(withBugType.bugType)
                       .build())
           .collect(Collectors.toList());
