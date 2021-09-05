@@ -178,10 +178,18 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     }
 
     @Override
+    public void visitParameter(String name, int access) {
+      System.err.printf("visitParameter: %s%s%n", methodDescriptor.getSignature(), name);
+      super.visitParameter(name, access);
+    }
+
+    @Override
     public AnnotationVisitor visitParameterAnnotation(
         int parameter, String descriptor, boolean visible) {
-      // TODO check annotation on params
-      return super.visitParameterAnnotation(parameter, descriptor, visible);
+      Type[] types = Type.getArgumentTypes(methodDescriptor.getSignature());
+      Type type = types[parameter];
+      System.err.printf("visitParameterAnnotation: %s method parameter (%d) is type %s and annotated with %s%n", methodDescriptor, parameter,  type, descriptor);
+      return null;
     }
 
     @Override
