@@ -19,8 +19,16 @@ import java.util.Optional;
 import org.jspecify.nullness.Nullable;
 
 enum Nullness {
+  /**
+   * Nullness of the target {@code TYPE_USE} is unknown, and both of package and class aren&apos;t
+   * annotated with JSpecify&apos;s nullness annotation.
+   */
+  NO_EXPLICIT_CONFIG(true),
+  /** Nullness of the target {@code TYPE_USE} is explicitly unknown. */
   UNKNOWN(true),
+  /** Nullness of the target {@code TYPE_USE} is explicitly nullable. */
   NULLABLE(true),
+  /** Nullness of the target {@code TYPE_USE} is explicitly not null. */
   NOT_NULL(false);
 
   private final boolean canBeNull;
@@ -31,6 +39,11 @@ enum Nullness {
 
   boolean canBeNull() {
     return this.canBeNull;
+  }
+
+  /** @return true if the nullness of the target {@code TYPE_USE} is declared explicitly. */
+  boolean isSetExplicitly() {
+    return this != NO_EXPLICIT_CONFIG;
   }
 
   // TODO support TypeQualifierNickname

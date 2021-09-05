@@ -1,0 +1,10 @@
+appender.console.type = Console
+appender.console.name = CONSOLE
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = %m%n
+
+rootLogger.level = info
+rootLogger.appenderRef.con.ref = CONSOLE
+
+logger.plugin.name = com.github.spotbugs.jspecify.nullness
+logger.plugin.level = debug
