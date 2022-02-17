@@ -188,7 +188,9 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         int parameter, String descriptor, boolean visible) {
       Type[] types = Type.getArgumentTypes(methodDescriptor.getSignature());
       Type type = types[parameter];
-      System.err.printf("visitParameterAnnotation: %s method parameter (%d) is type %s and annotated with %s%n", methodDescriptor, parameter,  type, descriptor);
+      System.err.printf(
+          "visitParameterAnnotation: %s method parameter (%d) is type %s and annotated with %s%n",
+          methodDescriptor, parameter, type, descriptor);
       return null;
     }
 

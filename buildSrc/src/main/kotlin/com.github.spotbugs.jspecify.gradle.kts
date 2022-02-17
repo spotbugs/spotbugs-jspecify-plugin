@@ -14,8 +14,8 @@ repositories {
     mavenCentral()
 }
 
-val errorproneVersion = "2.8.0"
-val junitVersion = "5.7.1"
+val errorproneVersion = "2.11.0"
+val junitVersion = "5.8.2"
 
 val xsd by configurations.creating {
     isTransitive = false
