@@ -9,13 +9,13 @@ SpotBugs plugin that works with [the new standard annotation definitions artifac
 Please check out this project and the [jspecify](https://github.com/jspecify/jspecify/) to the same directory.
 This project uses Gradle's [composite build](https://docs.gradle.org/current/userguide/composite_builds.html) feature, that needs the dependee project in the same directory.
 
-```shell
-git clone git@github.com:spotbugs/spotbugs-jspecify-plugin.git
-git clone git@github.com:jspecify/jspecify.git
-cd spotbugs-jspecify-plugin
-./gradlew
+```console
+$ git clone git@github.com:spotbugs/spotbugs-jspecify-plugin.git
+$ git clone git@github.com:jspecify/jspecify.git
+$ cd spotbugs-jspecify-plugin
+$ ./gradlew
 ```
 
 ## Copyright
 
-Copyright &copy; 2021 SpotBugs Team
+Copyright &copy; 2021-2022 SpotBugs Team
