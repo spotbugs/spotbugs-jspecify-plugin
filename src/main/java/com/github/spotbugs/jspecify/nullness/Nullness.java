@@ -57,10 +57,6 @@ enum Nullness {
       case "org/jspecify/nullness/NullMarked":
       case "org.jspecify.nullness.NullMarked":
         return Optional.of(NOT_NULL);
-      case "Lorg/jspecify/nullness/NullnessUnspecified;":
-      case "org/jspecify/nullness/NullnessUnspecified":
-      case "org.jspecify.nullness.NullnessUnspecified":
-        return Optional.of(UNKNOWN);
       case "Lorg/jspecify/nullness/Nullable;":
       case "org/jspecify/nullness/Nullable":
       case "org.jspecify.nullness.Nullable":
