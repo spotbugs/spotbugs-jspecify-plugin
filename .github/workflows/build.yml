@@ -8,11 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           path: spotbugs-jspecify-plugin
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           repository: jspecify/jspecify
           path: jspecify
@@ -28,7 +28,7 @@ jobs:
         working-directory: spotbugs-jspecify-plugin
         run: |
           ./gradlew spotlessCheck build --no-daemon
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: always()
         with:
           name: Reports
