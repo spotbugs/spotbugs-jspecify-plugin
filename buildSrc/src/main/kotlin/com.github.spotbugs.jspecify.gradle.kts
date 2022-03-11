@@ -14,6 +14,12 @@ repositories {
     mavenCentral()
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
+}
+
 val errorproneVersion = "2.11.0"
 val junitVersion = "5.8.2"
 
