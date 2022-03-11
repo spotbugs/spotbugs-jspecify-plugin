@@ -10,6 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          repository: KengoTODA/gradle-modules-plugin
+          path: gradle-modules-plugin
+          ref: support-toolchain
+      - uses: actions/checkout@v3
+        with:
           fetch-depth: 0
           path: spotbugs-jspecify-plugin
       - uses: actions/checkout@v3
