@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -46,10 +47,24 @@ class TestWithSample {
   private static final String ABBREV = "JSPECIFY";
 
   // TODO resolve version dynamically
-  private static final Path JAR =
-      Paths.get("..", "jspecify", "build", "libs", "jspecify-0.0.0-SNAPSHOT.jar")
-          .toAbsolutePath()
-          .normalize();
+  private static final List<Path> JAR =
+      List.of(
+          Paths.get("..", "jspecify", "build", "libs", "jspecify-0.0.0-SNAPSHOT.jar")
+              .toAbsolutePath()
+              .normalize(),
+          Paths.get(
+                  System.getenv("user.home"),
+                  ".gradle",
+                  "caches",
+                  "modules-2",
+                  "files-2.1",
+                  "com.google.guava",
+                  "guava",
+                  "31.1-jre",
+                  "60458f877d055d0c9114d9e1a2efb737b4bc282c",
+                  "guava-31.1-jre.jar")
+              .toAbsolutePath()
+              .normalize());
 
   @TempDir File classFileDir;
 
@@ -90,13 +105,14 @@ class TestWithSample {
       File javaFile, JavaCompiler compiler, StandardJavaFileManager javaFileManager) {
     Iterable<? extends JavaFileObject> javaFileObjects =
         javaFileManager.getJavaFileObjects(javaFile);
+    String classpath = JAR.stream().map(Path::toString).collect(Collectors.joining(","));
     Boolean success =
         compiler
             .getTask(
                 null,
                 javaFileManager,
                 null,
-                List.of("-classpath", JAR.toString(), "-d", classFileDir.getPath()),
+                List.of("-classpath", classpath, "-d", classFileDir.getPath()),
                 null,
                 javaFileObjects)
             .call();
