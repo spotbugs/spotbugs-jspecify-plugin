@@ -1,7 +1,6 @@
 plugins {
     id("com.github.spotbugs.jspecify")
     id("org.javamodularity.moduleplugin")
-    id("com.gtramontina.ghooks.gradle") version "1.1.1"
 }
 
 repositories {
