@@ -23,6 +23,7 @@ dependencies {
     testImplementation("org.jspecify:jspecify:$jspecifyVersion")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.jupiter:junit-jupiter-params")
+    testImplementation("com.google.guava:guava:31.1-jre")
     xsd("com.github.spotbugs:spotbugs:$spotbugsVersion")
 }
 
