@@ -77,7 +77,7 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
     NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
     Optional<Nullness> optional =
         database.findNullnessOf(getXClassOperand(), methodOperand, Global.getAnalysisCache());
-    if (methodOperand.isReturnTypeReferenceType() && !stack.isTop()) {
+    if ((methodOperand != null && methodOperand.isReturnTypeReferenceType()) && !stack.isTop()) {
       optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
     }
   }
