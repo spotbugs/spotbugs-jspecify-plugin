@@ -74,7 +74,7 @@ class TestWithSample {
     return Arrays.stream(samples.toFile().listFiles())
         .filter(File::isFile)
         .filter(file -> file.getName().endsWith(".java"))
-        .toArray(size -> new File[size]);
+        .toArray(File[]::new);
   }
 
   @ParameterizedTest(name = "Compile and run analysis on {0}")

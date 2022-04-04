@@ -190,7 +190,10 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       Type type = types[parameter];
       log.info(
           "visitParameterAnnotation: {} method parameter ({}) is type {} and annotated with {}",
-          methodDescriptor, parameter, type, descriptor);
+          methodDescriptor,
+          parameter,
+          type,
+          descriptor);
       return null;
     }
 
