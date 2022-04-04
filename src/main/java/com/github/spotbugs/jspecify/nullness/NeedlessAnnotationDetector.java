@@ -179,7 +179,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
 
     @Override
     public void visitParameter(String name, int access) {
-      System.err.printf("visitParameter: %s%s%n", methodDescriptor.getSignature(), name);
+      log.info("visitParameter: {}{}", methodDescriptor.getSignature(), name);
       super.visitParameter(name, access);
     }
 
@@ -188,8 +188,8 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         int parameter, String descriptor, boolean visible) {
       Type[] types = Type.getArgumentTypes(methodDescriptor.getSignature());
       Type type = types[parameter];
-      System.err.printf(
-          "visitParameterAnnotation: %s method parameter (%d) is type %s and annotated with %s%n",
+      log.info(
+          "visitParameterAnnotation: {} method parameter ({}) is type {} and annotated with {}",
           methodDescriptor, parameter, type, descriptor);
       return null;
     }
@@ -202,8 +202,8 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       if (!canBeNull(returnType)
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
-        System.err.printf(
-            "%s is annotated as nullable, but %s cannot be null%n", methodDescriptor, returnType);
+        log.info(
+            "{} is annotated as nullable, but {} cannot be null", methodDescriptor, returnType);
         bugReporter.reportBug(
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
