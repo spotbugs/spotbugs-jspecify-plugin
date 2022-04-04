@@ -58,6 +58,19 @@ class TestWithSample {
                   "caches",
                   "modules-2",
                   "files-2.1",
+                  "com.google.code.findbugs",
+                  "jsr305",
+                  "3.0.2",
+                  "25ea2e8b0c338a877313bd4672d3fe056ea78f0d",
+                  "jsr305-3.0.2.jar")
+              .toAbsolutePath()
+              .normalize(),
+          Paths.get(
+                  System.getProperty("user.home"),
+                  ".gradle",
+                  "caches",
+                  "modules-2",
+                  "files-2.1",
                   "com.google.guava",
                   "guava",
                   "31.1-jre",
