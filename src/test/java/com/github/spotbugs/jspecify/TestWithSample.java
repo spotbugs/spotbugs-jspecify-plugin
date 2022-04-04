@@ -53,7 +53,7 @@ class TestWithSample {
               .toAbsolutePath()
               .normalize(),
           Paths.get(
-                  System.getenv("user.home"),
+                  System.getProperty("user.home"),
                   ".gradle",
                   "caches",
                   "modules-2",
@@ -105,7 +105,8 @@ class TestWithSample {
       File javaFile, JavaCompiler compiler, StandardJavaFileManager javaFileManager) {
     Iterable<? extends JavaFileObject> javaFileObjects =
         javaFileManager.getJavaFileObjects(javaFile);
-    String classpath = JAR.stream().map(Path::toString).collect(Collectors.joining(","));
+    String classpath =
+        JAR.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
     Boolean success =
         compiler
             .getTask(
@@ -116,6 +117,8 @@ class TestWithSample {
                 null,
                 javaFileObjects)
             .call();
-    Assertions.assertTrue(success);
+    if (!success) {
+      Assertions.fail("Compilation failed unexpectedly");
+    }
   }
 }
