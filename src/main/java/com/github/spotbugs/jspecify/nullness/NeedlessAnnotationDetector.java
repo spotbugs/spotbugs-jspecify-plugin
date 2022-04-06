@@ -243,6 +243,16 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     public AnnotationVisitor visitTypeAnnotation(
         int typeRef, TypePath typePath, String descriptor, boolean visible) {
       TypeReference typeRefObj = new TypeReference(typeRef);
+      if (typeRefObj.getSort() == TypeReference.METHOD_RECEIVER) {
+        if (Nullness.from(descriptor).map(Nullness::isSetExplicitly).orElse(Boolean.FALSE)) {
+          bugReporter.reportBug(
+              new BugInstance(
+                      "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                  .addType(classDescriptor.getSignature())
+                  .addClassAndMethod(methodDescriptor));
+        }
+        return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+      }
       Type annotated = getAnnotated(typeRefObj, typePath);
       if (annotated != null
           && annotated.getSort() <= Type.DOUBLE
