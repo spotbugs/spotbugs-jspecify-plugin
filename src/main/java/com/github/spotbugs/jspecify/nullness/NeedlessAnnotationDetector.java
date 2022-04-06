@@ -15,16 +15,13 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
+import com.github.spotbugs.jspecify.nullness.asm.*;
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.asm.ClassNodeDetector;
 import edu.umd.cs.findbugs.ba.XClass;
-import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
-import edu.umd.cs.findbugs.classfile.ClassDescriptor;
-import edu.umd.cs.findbugs.classfile.FieldDescriptor;
-import edu.umd.cs.findbugs.classfile.Global;
-import edu.umd.cs.findbugs.classfile.MethodDescriptor;
+import edu.umd.cs.findbugs.classfile.*;
 import edu.umd.cs.findbugs.classfile.engine.asm.FindBugsASM;
 import edu.umd.cs.findbugs.internalAnnotations.SlashedClassName;
 import java.lang.invoke.MethodHandles;
@@ -34,6 +31,8 @@ import org.jspecify.nullness.NullMarked;
 import org.jspecify.nullness.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +94,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     return new MethodVisitor(
         FindBugsASM.ASM_VERSION,
         methodDescriptor,
+        signature,
         nullness == null ? Nullness.NO_EXPLICIT_CONFIG : nullness);
   }
 
@@ -168,19 +168,89 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     private final MethodDescriptor methodDescriptor;
     /** Default nullness in the current scope. */
     private final Nullness defaultNullness;
+    /** The signature of this method, could be null if the method is not generic. */
+    @Nullable private final String signature;
     /** Nullness specified by the annotation on this method's return value. */
     @Nullable private Nullness nullness;
 
-    MethodVisitor(int api, MethodDescriptor methodDescriptor, Nullness defaultNullness) {
+    MethodVisitor(
+        int api, MethodDescriptor methodDescriptor, String signature, Nullness defaultNullness) {
       super(api);
+      this.signature = signature;
       this.defaultNullness = defaultNullness;
       this.methodDescriptor = methodDescriptor;
     }
 
     @Override
     public void visitParameter(String name, int access) {
-      log.info("visitParameter: {}{}", methodDescriptor.getSignature(), name);
+      log.debug("visitParameter: signature {}, name {}", methodDescriptor.getSignature(), name);
       super.visitParameter(name, access);
+    }
+
+    private Type getAnnotated(TypeReference typeRef, TypePath typePath) {
+      TypeArgument tempType = null;
+      switch (typeRef.getSort()) {
+        case TypeReference.METHOD_RETURN:
+          return Type.getReturnType(methodDescriptor.getSignature());
+
+        case TypeReference.METHOD_FORMAL_PARAMETER:
+          int typeParamIndex = typeRef.getTypeParameterIndex();
+          if (typePath == null) {
+            // means the type of parameter is directly annotated, like `@Nullness int`
+            return Type.getArgumentTypes(methodDescriptor.getSignature())[typeParamIndex];
+          }
+          System.err.println("method is " + methodDescriptor + ", signature is " + signature);
+          ParameterType param =
+              ParameterTypeFinder.create(api, signature, methodDescriptor)
+                  .getParameterType(typeParamIndex);
+
+          int length = typePath.getLength();
+          for (int i = 0; i < length; ++i) {
+            switch (typePath.getStep(i)) {
+              case TypePath.TYPE_ARGUMENT:
+                int index = typePath.getStepArgument(i);
+                tempType = param.getTypeArguments().get(index);
+                break;
+
+              case TypePath.ARRAY_ELEMENT:
+                // means an element of array is annotated, like `@Nullness int[]`
+                if (tempType instanceof TypeArgumentWithType) {
+                  return ((TypeArgumentWithType) tempType).getType().getElementType();
+                }
+
+                Type arrayType =
+                    Type.getArgumentTypes(methodDescriptor.getSignature())[typeParamIndex];
+                return arrayType.getElementType();
+            }
+          }
+          // fall through
+        default:
+          log.debug(
+              ">> sort {}, TypeArgumentIndex {}, TypeParameterIndex {}, TypeParameterBoundIndex {}, typePath {}",
+              typeRef.getSort(),
+              typeRef.getTypeArgumentIndex(),
+              typeRef.getTypeParameterIndex(),
+              typeRef.getTypeParameterBoundIndex(),
+              typePath);
+      }
+      return null;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(
+        int typeRef, TypePath typePath, String descriptor, boolean visible) {
+      TypeReference typeRefObj = new TypeReference(typeRef);
+      Type annotated = getAnnotated(typeRefObj, typePath);
+      if (annotated != null
+          && annotated.getSort() <= Type.DOUBLE
+          && Nullness.from(descriptor).isPresent()) {
+        bugReporter.reportBug(
+            new BugInstance(
+                    "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                .addType(annotated.getDescriptor())
+                .addClassAndMethod(methodDescriptor));
+      }
+      return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
     @Override
