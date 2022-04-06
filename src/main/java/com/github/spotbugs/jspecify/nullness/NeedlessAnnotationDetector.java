@@ -23,10 +23,9 @@ import edu.umd.cs.findbugs.asm.ClassNodeDetector;
 import edu.umd.cs.findbugs.ba.XClass;
 import edu.umd.cs.findbugs.classfile.*;
 import edu.umd.cs.findbugs.classfile.engine.asm.FindBugsASM;
-import edu.umd.cs.findbugs.internalAnnotations.SlashedClassName;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
-import java.util.Set;
+import java.util.Objects;
 import org.jspecify.nullness.NullMarked;
 import org.jspecify.nullness.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
@@ -39,33 +38,16 @@ import org.slf4j.LoggerFactory;
 public class NeedlessAnnotationDetector extends ClassNodeDetector {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Set<Type> INTRINSICALLY_NOT_NULLABLE_TYPES =
-      Set.of(
-          Type.BOOLEAN_TYPE,
-          Type.BYTE_TYPE,
-          Type.CHAR_TYPE,
-          Type.INT_TYPE,
-          Type.LONG_TYPE,
-          Type.FLOAT_TYPE,
-          Type.DOUBLE_TYPE);
-
   @Nullable private Nullness nullness;
-  @SlashedClassName @Nullable private ClassDescriptor classDescriptor;
+  @Nullable private ClassDescriptor classDescriptor;
 
   public NeedlessAnnotationDetector(BugReporter bugReporter) {
     super(bugReporter);
   }
 
+  /** Return true if given type can be null. */
   private boolean canBeNull(Type type) {
-    final XClass clazz;
-    try {
-      clazz = Global.getAnalysisCache().getClassAnalysis(XClass.class, classDescriptor);
-    } catch (CheckedAnalysisException e) {
-      bugReporter.reportMissingClass(classDescriptor);
-      return false;
-    }
-    return !INTRINSICALLY_NOT_NULLABLE_TYPES.contains(type)
-        && !clazz.getSuperclassDescriptor().matches(Enum.class);
+    return type.getSort() > Type.DOUBLE;
   }
 
   @Override
@@ -126,12 +108,33 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       this.fieldDescriptor = fieldDescriptor;
     }
 
+    /** Return true if visiting firld is an Enum field like {@code enum Foo {FOO;} } */
+    private boolean isEnumField() {
+      if (!fieldDescriptor.isStatic()) {
+        return false;
+      }
+
+      try {
+        XClass clazz = Global.getAnalysisCache().getClassAnalysis(XClass.class, classDescriptor);
+        if (!clazz.getSuperclassDescriptor().matches(Enum.class)) {
+          return false;
+        }
+      } catch (CheckedAnalysisException e) {
+        bugReporter.reportMissingClass(classDescriptor);
+        return false;
+      }
+
+      return Objects.equals(
+          Type.getType(fieldDescriptor.getSignature()),
+          Type.getType(classDescriptor.getSignature()));
+    }
+
     @Override
     public void visitEnd() {
       super.visitEnd();
       Nullness nullnessOfReturnedValue = nullness == null ? defaultNullness : nullness;
       Type type = Type.getType(fieldDescriptor.getSignature());
-      if (!canBeNull(type)
+      if ((isEnumField() || !canBeNull(type))
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
         log.info("{} is annotated as nullable, but {} cannot be null", fieldDescriptor, type);
