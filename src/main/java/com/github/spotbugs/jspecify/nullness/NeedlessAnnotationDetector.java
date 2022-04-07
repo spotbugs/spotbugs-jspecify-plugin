@@ -260,7 +260,9 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
                 .addType(annotated.getDescriptor())
-                .addClassAndMethod(methodDescriptor));
+                .addClassAndMethod(methodDescriptor)
+                .addParameterAnnotation(
+                    typeRefObj.getTypeParameterIndex(), "the annotated parameter"));
       }
       return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
