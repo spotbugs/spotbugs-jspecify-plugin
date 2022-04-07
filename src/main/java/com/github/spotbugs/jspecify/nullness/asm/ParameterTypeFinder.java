@@ -33,10 +33,10 @@ public abstract class ParameterTypeFinder {
 
   public abstract ParameterType getParameterType(int argument);
 
-  private static class BasedOnSignature extends ParameterTypeFinder {
+  static class BasedOnSignature extends ParameterTypeFinder {
     private final SignatureParser signatureParser;
 
-    public BasedOnSignature(SignatureParser signatureParser) {
+    BasedOnSignature(SignatureParser signatureParser) {
       this.signatureParser = Objects.requireNonNull(signatureParser);
     }
 
@@ -46,12 +46,15 @@ public abstract class ParameterTypeFinder {
     }
   }
 
-  private static class BasedOnMethodDescriptor extends ParameterTypeFinder {
+  static class BasedOnMethodDescriptor extends ParameterTypeFinder {
     private final Type[] argumentTypes;
 
-    public BasedOnMethodDescriptor(MethodDescriptor methodDescriptor) {
-      this.argumentTypes =
-          Type.getArgumentTypes(Objects.requireNonNull(methodDescriptor).getSignature());
+    BasedOnMethodDescriptor(String signature) {
+      this.argumentTypes = Type.getArgumentTypes(Objects.requireNonNull(signature));
+    }
+
+    BasedOnMethodDescriptor(MethodDescriptor methodDescriptor) {
+      this(Objects.requireNonNull(methodDescriptor).getSignature());
     }
 
     @Override

@@ -22,7 +22,7 @@ import org.objectweb.asm.Type;
 public final class TypeArgumentWithType extends TypeArgument {
   private final Type type;
 
-  TypeArgumentWithType(char wildcard, String name) {
+  public TypeArgumentWithType(char wildcard, String name) {
     super(wildcard);
     this.type = Type.getType(Objects.requireNonNull(name));
   }
@@ -60,5 +60,10 @@ public final class TypeArgumentWithType extends TypeArgument {
   @Override
   public int hashCode() {
     return type != null ? type.hashCode() : 0;
+  }
+
+  @Override
+  public String toString() {
+    return "TypeArgumentWithType{" + "wildcard=" + getWildcard() + ", type=" + type + '}';
   }
 }

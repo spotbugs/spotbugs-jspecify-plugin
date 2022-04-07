@@ -57,4 +57,15 @@ public final class TypeArgumentWithTypeVariable extends TypeArgument {
     result = 31 * result + (typeVariable != null ? typeVariable.hashCode() : 0);
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "TypeArgumentWithTypeVariable{"
+        + "wildcard="
+        + getWildcard()
+        + ", typeVariable='"
+        + typeVariable
+        + '\''
+        + '}';
+  }
 }
