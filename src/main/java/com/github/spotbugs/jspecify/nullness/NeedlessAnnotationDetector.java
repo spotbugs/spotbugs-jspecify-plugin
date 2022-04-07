@@ -26,6 +26,7 @@ import edu.umd.cs.findbugs.classfile.engine.asm.FindBugsASM;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
+import org.apache.bcel.Const;
 import org.jspecify.nullness.NullMarked;
 import org.jspecify.nullness.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
@@ -78,6 +79,44 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         methodDescriptor,
         signature,
         nullness == null ? Nullness.NO_EXPLICIT_CONFIG : nullness);
+  }
+
+  @Override
+  public AnnotationVisitor visitTypeAnnotation(
+      int typeRef, TypePath typePath, String descriptor, boolean visible) {
+    TypeReference typeRefObj = new TypeReference(typeRef);
+    switch (typeRefObj.getSort()) {
+      case TypeReference.CLASS_EXTENDS:
+        if (Nullness.from(descriptor).isPresent() && typePath == null) {
+          try {
+            int index = typeRefObj.getSuperTypeIndex();
+            ClassDescriptor annotated;
+            if (index == -1) {
+              // TODO improve bug description to tell the problem intuitive
+              annotated = classDescriptor.getXClass().getSuperclassDescriptor();
+              log.warn(
+                  "The superclass, {}, is wrongly annotated with a nullness annotation in the class {}",
+                  annotated,
+                  classDescriptor);
+            } else {
+              // TODO improve bug description to tell the problem intuitive
+              annotated = classDescriptor.getXClass().getInterfaceDescriptorList()[index];
+              log.warn(
+                  "One of interfaces, {}, is w with a nullness annotation in the class {}",
+                  annotated,
+                  classDescriptor);
+            }
+            bugReporter.reportBug(
+                new BugInstance(
+                        "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                    .addType(annotated)
+                    .addClass(classDescriptor));
+          } catch (CheckedAnalysisException e) {
+            log.error("Could not get XClass from " + classDescriptor, e);
+          }
+        }
+    }
+    return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
@@ -244,7 +283,10 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     public AnnotationVisitor visitTypeAnnotation(
         int typeRef, TypePath typePath, String descriptor, boolean visible) {
       TypeReference typeRefObj = new TypeReference(typeRef);
-      if (typeRefObj.getSort() == TypeReference.METHOD_RECEIVER) {
+      if (typeRefObj.getSort() == TypeReference.METHOD_RECEIVER
+          || (Const.CONSTRUCTOR_NAME.equals(methodDescriptor.getName())
+              && typeRefObj.getSort() == TypeReference.METHOD_RETURN)) {
+        // TODO make bug description intuitive
         if (Nullness.from(descriptor).map(Nullness::isSetExplicitly).orElse(Boolean.FALSE)) {
           bugReporter.reportBug(
               new BugInstance(
