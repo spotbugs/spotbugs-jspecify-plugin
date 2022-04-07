@@ -137,7 +137,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       if ((isEnumField() || !canBeNull(type))
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
-        log.info("{} is annotated as nullable, but {} cannot be null", fieldDescriptor, type);
+        log.debug("{} is annotated as nullable, but {} cannot be null", fieldDescriptor, type);
         bugReporter.reportBug(
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
@@ -202,7 +202,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
             // means the type of parameter is directly annotated, like `@Nullness int`
             return Type.getArgumentTypes(methodDescriptor.getSignature())[typeParamIndex];
           }
-          System.err.println("method is " + methodDescriptor + ", signature is " + signature);
+          log.debug("method is {}, signature is {}", methodDescriptor, signature);
           ParameterType param =
               ParameterTypeFinder.create(api, signature, methodDescriptor)
                   .getParameterType(typeParamIndex);
@@ -217,6 +217,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
 
               case TypePath.ARRAY_ELEMENT:
                 // means an element of array is annotated, like `@Nullness int[]`
+                // TODO support nested array like int[][]
                 if (tempType instanceof TypeArgumentWithType) {
                   return ((TypeArgumentWithType) tempType).getType().getElementType();
                 }
@@ -254,9 +255,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
       }
       Type annotated = getAnnotated(typeRefObj, typePath);
-      if (annotated != null
-          && annotated.getSort() <= Type.DOUBLE
-          && Nullness.from(descriptor).isPresent()) {
+      if (annotated != null && !canBeNull(annotated) && Nullness.from(descriptor).isPresent()) {
         bugReporter.reportBug(
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
@@ -271,7 +270,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         int parameter, String descriptor, boolean visible) {
       Type[] types = Type.getArgumentTypes(methodDescriptor.getSignature());
       Type type = types[parameter];
-      log.info(
+      log.debug(
           "visitParameterAnnotation: {} method parameter ({}) is type {} and annotated with {}",
           methodDescriptor,
           parameter,
@@ -288,7 +287,7 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       if (!canBeNull(returnType)
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
-        log.info(
+        log.debug(
             "{} is annotated as nullable, but {} cannot be null", methodDescriptor, returnType);
         bugReporter.reportBug(
             new BugInstance(
