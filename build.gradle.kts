@@ -7,7 +7,7 @@ repositories {
     mavenCentral()
 }
 
-val spotbugsVersion = "4.6.0"
+val spotbugsVersion = "4.7.0"
 val jspecifyVersion = "0.2.0"
 
 dependencies {
