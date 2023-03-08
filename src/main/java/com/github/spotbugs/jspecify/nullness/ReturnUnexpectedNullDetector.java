@@ -64,21 +64,21 @@ public class ReturnUnexpectedNullDetector extends OpcodeStackDetector {
 
   @Override
   public void afterOpcode(int code) {
-    switch (code) {
-      case Const.INVOKEINTERFACE:
-      case Const.INVOKESPECIAL:
-      case Const.INVOKESTATIC:
-      case Const.INVOKEVIRTUAL:
-        XMethod methodOperand = getXMethodOperand();
-        NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
-        Optional<Nullness> optional =
-            database.findNullnessOf(getXClassOperand(), methodOperand, Global.getAnalysisCache());
-        super.afterOpcode(code);
-        optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
-        return;
-        // constructor has no returned value
-      default:
-        super.afterOpcode(code);
+    super.afterOpcode(code);
+
+    if (code != Const.INVOKEINTERFACE
+        && code != Const.INVOKESPECIAL
+        && code != Const.INVOKESTATIC
+        && code != Const.INVOKEVIRTUAL) {
+      return;
+    }
+
+    XMethod methodOperand = getXMethodOperand();
+    NullnessDatabase database = Global.getAnalysisCache().getDatabase(NullnessDatabase.class);
+    Optional<Nullness> optional =
+        database.findNullnessOf(getXClassOperand(), methodOperand, Global.getAnalysisCache());
+    if ((methodOperand != null && methodOperand.isReturnTypeReferenceType()) && !stack.isTop()) {
+      optional.ifPresent(nullness -> stack.getStackItem(0).setUserValue(nullness));
     }
   }
 }

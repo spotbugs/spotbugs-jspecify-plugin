@@ -15,58 +15,40 @@
  */
 package com.github.spotbugs.jspecify.nullness;
 
+import com.github.spotbugs.jspecify.nullness.asm.*;
 import edu.umd.cs.findbugs.BugInstance;
 import edu.umd.cs.findbugs.BugReporter;
 import edu.umd.cs.findbugs.Priorities;
 import edu.umd.cs.findbugs.asm.ClassNodeDetector;
 import edu.umd.cs.findbugs.ba.XClass;
-import edu.umd.cs.findbugs.classfile.CheckedAnalysisException;
-import edu.umd.cs.findbugs.classfile.ClassDescriptor;
-import edu.umd.cs.findbugs.classfile.FieldDescriptor;
-import edu.umd.cs.findbugs.classfile.Global;
-import edu.umd.cs.findbugs.classfile.MethodDescriptor;
+import edu.umd.cs.findbugs.classfile.*;
 import edu.umd.cs.findbugs.classfile.engine.asm.FindBugsASM;
-import edu.umd.cs.findbugs.internalAnnotations.SlashedClassName;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
-import java.util.Set;
+import java.util.Objects;
+import org.apache.bcel.Const;
 import org.jspecify.nullness.NullMarked;
 import org.jspecify.nullness.Nullable;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.Type;
+import org.objectweb.asm.TypePath;
+import org.objectweb.asm.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NeedlessAnnotationDetector extends ClassNodeDetector {
   private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final Set<Type> INTRINSICALLY_NOT_NULLABLE_TYPES =
-      Set.of(
-          Type.BOOLEAN_TYPE,
-          Type.BYTE_TYPE,
-          Type.CHAR_TYPE,
-          Type.INT_TYPE,
-          Type.LONG_TYPE,
-          Type.FLOAT_TYPE,
-          Type.DOUBLE_TYPE);
-
   @Nullable private Nullness nullness;
-  @SlashedClassName @Nullable private ClassDescriptor classDescriptor;
+  @Nullable private ClassDescriptor classDescriptor;
 
   public NeedlessAnnotationDetector(BugReporter bugReporter) {
     super(bugReporter);
   }
 
+  /** Return true if given type can be null. */
   private boolean canBeNull(Type type) {
-    final XClass clazz;
-    try {
-      clazz = Global.getAnalysisCache().getClassAnalysis(XClass.class, classDescriptor);
-    } catch (CheckedAnalysisException e) {
-      bugReporter.reportMissingClass(classDescriptor);
-      return false;
-    }
-    return !INTRINSICALLY_NOT_NULLABLE_TYPES.contains(type)
-        && !clazz.getSuperclassDescriptor().matches(Enum.class);
+    return type.getSort() > Type.DOUBLE;
   }
 
   @Override
@@ -95,7 +77,46 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     return new MethodVisitor(
         FindBugsASM.ASM_VERSION,
         methodDescriptor,
+        signature,
         nullness == null ? Nullness.NO_EXPLICIT_CONFIG : nullness);
+  }
+
+  @Override
+  public AnnotationVisitor visitTypeAnnotation(
+      int typeRef, TypePath typePath, String descriptor, boolean visible) {
+    TypeReference typeRefObj = new TypeReference(typeRef);
+    switch (typeRefObj.getSort()) {
+      case TypeReference.CLASS_EXTENDS:
+        if (Nullness.from(descriptor).isPresent() && typePath == null) {
+          try {
+            int index = typeRefObj.getSuperTypeIndex();
+            ClassDescriptor annotated;
+            if (index == -1) {
+              // TODO improve bug description to tell the problem intuitive
+              annotated = classDescriptor.getXClass().getSuperclassDescriptor();
+              log.warn(
+                  "The superclass, {}, is wrongly annotated with a nullness annotation in the class {}",
+                  annotated,
+                  classDescriptor);
+            } else {
+              // TODO improve bug description to tell the problem intuitive
+              annotated = classDescriptor.getXClass().getInterfaceDescriptorList()[index];
+              log.warn(
+                  "One of interfaces, {}, is w with a nullness annotation in the class {}",
+                  annotated,
+                  classDescriptor);
+            }
+            bugReporter.reportBug(
+                new BugInstance(
+                        "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                    .addType(annotated)
+                    .addClass(classDescriptor));
+          } catch (CheckedAnalysisException e) {
+            log.error("Could not get XClass from " + classDescriptor, e);
+          }
+        }
+    }
+    return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
   }
 
   @Override
@@ -126,15 +147,36 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       this.fieldDescriptor = fieldDescriptor;
     }
 
+    /** Return true if visiting firld is an Enum field like {@code enum Foo {FOO;} } */
+    private boolean isEnumField() {
+      if (!fieldDescriptor.isStatic()) {
+        return false;
+      }
+
+      try {
+        XClass clazz = Global.getAnalysisCache().getClassAnalysis(XClass.class, classDescriptor);
+        if (!clazz.getSuperclassDescriptor().matches(Enum.class)) {
+          return false;
+        }
+      } catch (CheckedAnalysisException e) {
+        bugReporter.reportMissingClass(classDescriptor);
+        return false;
+      }
+
+      return Objects.equals(
+          Type.getType(fieldDescriptor.getSignature()),
+          Type.getType(classDescriptor.getSignature()));
+    }
+
     @Override
     public void visitEnd() {
       super.visitEnd();
       Nullness nullnessOfReturnedValue = nullness == null ? defaultNullness : nullness;
       Type type = Type.getType(fieldDescriptor.getSignature());
-      if (!canBeNull(type)
+      if ((isEnumField() || !canBeNull(type))
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
-        log.info("{} is annotated as nullable, but {} cannot be null", fieldDescriptor, type);
+        log.debug("{} is annotated as nullable, but {} cannot be null", fieldDescriptor, type);
         bugReporter.reportBug(
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
@@ -168,19 +210,103 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
     private final MethodDescriptor methodDescriptor;
     /** Default nullness in the current scope. */
     private final Nullness defaultNullness;
+    /** The signature of this method, could be null if the method is not generic. */
+    @Nullable private final String signature;
     /** Nullness specified by the annotation on this method's return value. */
     @Nullable private Nullness nullness;
 
-    MethodVisitor(int api, MethodDescriptor methodDescriptor, Nullness defaultNullness) {
+    MethodVisitor(
+        int api, MethodDescriptor methodDescriptor, String signature, Nullness defaultNullness) {
       super(api);
+      this.signature = signature;
       this.defaultNullness = defaultNullness;
       this.methodDescriptor = methodDescriptor;
     }
 
     @Override
     public void visitParameter(String name, int access) {
-      System.err.printf("visitParameter: %s%s%n", methodDescriptor.getSignature(), name);
+      log.debug("visitParameter: signature {}, name {}", methodDescriptor.getSignature(), name);
       super.visitParameter(name, access);
+    }
+
+    private Type getAnnotated(TypeReference typeRef, TypePath typePath) {
+      TypeArgument tempType = null;
+      switch (typeRef.getSort()) {
+        case TypeReference.METHOD_RETURN:
+          return Type.getReturnType(methodDescriptor.getSignature());
+
+        case TypeReference.METHOD_FORMAL_PARAMETER:
+          int typeParamIndex = typeRef.getTypeParameterIndex();
+          if (typePath == null) {
+            // means the type of parameter is directly annotated, like `@Nullness int`
+            return Type.getArgumentTypes(methodDescriptor.getSignature())[typeParamIndex];
+          }
+          log.debug("method is {}, signature is {}", methodDescriptor, signature);
+          ParameterType param =
+              ParameterTypeFinder.create(api, signature, methodDescriptor)
+                  .getParameterType(typeParamIndex);
+
+          int length = typePath.getLength();
+          for (int i = 0; i < length; ++i) {
+            switch (typePath.getStep(i)) {
+              case TypePath.TYPE_ARGUMENT:
+                int index = typePath.getStepArgument(i);
+                tempType = param.getTypeArguments().get(index);
+                break;
+
+              case TypePath.ARRAY_ELEMENT:
+                // means an element of array is annotated, like `@Nullness int[]`
+                // TODO support nested array like int[][]
+                if (tempType instanceof TypeArgumentWithType) {
+                  return ((TypeArgumentWithType) tempType).getType().getElementType();
+                }
+
+                Type arrayType =
+                    Type.getArgumentTypes(methodDescriptor.getSignature())[typeParamIndex];
+                return arrayType.getElementType();
+            }
+          }
+          // fall through
+        default:
+          log.debug(
+              ">> sort {}, TypeArgumentIndex {}, TypeParameterIndex {}, TypeParameterBoundIndex {}, typePath {}",
+              typeRef.getSort(),
+              typeRef.getTypeArgumentIndex(),
+              typeRef.getTypeParameterIndex(),
+              typeRef.getTypeParameterBoundIndex(),
+              typePath);
+      }
+      return null;
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(
+        int typeRef, TypePath typePath, String descriptor, boolean visible) {
+      TypeReference typeRefObj = new TypeReference(typeRef);
+      if (typeRefObj.getSort() == TypeReference.METHOD_RECEIVER
+          || (Const.CONSTRUCTOR_NAME.equals(methodDescriptor.getName())
+              && typeRefObj.getSort() == TypeReference.METHOD_RETURN)) {
+        // TODO make bug description intuitive
+        if (Nullness.from(descriptor).map(Nullness::isSetExplicitly).orElse(Boolean.FALSE)) {
+          bugReporter.reportBug(
+              new BugInstance(
+                      "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                  .addType(classDescriptor.getSignature())
+                  .addClassAndMethod(methodDescriptor));
+        }
+        return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
+      }
+      Type annotated = getAnnotated(typeRefObj, typePath);
+      if (annotated != null && !canBeNull(annotated) && Nullness.from(descriptor).isPresent()) {
+        bugReporter.reportBug(
+            new BugInstance(
+                    "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)
+                .addType(annotated.getDescriptor())
+                .addClassAndMethod(methodDescriptor)
+                .addParameterAnnotation(
+                    typeRefObj.getTypeParameterIndex(), "the annotated parameter"));
+      }
+      return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible);
     }
 
     @Override
@@ -188,9 +314,12 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
         int parameter, String descriptor, boolean visible) {
       Type[] types = Type.getArgumentTypes(methodDescriptor.getSignature());
       Type type = types[parameter];
-      System.err.printf(
-          "visitParameterAnnotation: %s method parameter (%d) is type %s and annotated with %s%n",
-          methodDescriptor, parameter, type, descriptor);
+      log.debug(
+          "visitParameterAnnotation: {} method parameter ({}) is type {} and annotated with {}",
+          methodDescriptor,
+          parameter,
+          type,
+          descriptor);
       return null;
     }
 
@@ -202,8 +331,8 @@ public class NeedlessAnnotationDetector extends ClassNodeDetector {
       if (!canBeNull(returnType)
           && nullnessOfReturnedValue.isSetExplicitly()
           && nullnessOfReturnedValue != Nullness.NOT_NULL) {
-        System.err.printf(
-            "%s is annotated as nullable, but %s cannot be null%n", methodDescriptor, returnType);
+        log.debug(
+            "{} is annotated as nullable, but {} cannot be null", methodDescriptor, returnType);
         bugReporter.reportBug(
             new BugInstance(
                     "JSPECIFY_NULLNESS_INTRINSICALLY_NOT_NULLABLE", Priorities.HIGH_PRIORITY)

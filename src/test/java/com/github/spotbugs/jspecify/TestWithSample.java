@@ -53,7 +53,20 @@ class TestWithSample {
               .toAbsolutePath()
               .normalize(),
           Paths.get(
-                  System.getenv("user.home"),
+                  System.getProperty("user.home"),
+                  ".gradle",
+                  "caches",
+                  "modules-2",
+                  "files-2.1",
+                  "com.google.code.findbugs",
+                  "jsr305",
+                  "3.0.2",
+                  "25ea2e8b0c338a877313bd4672d3fe056ea78f0d",
+                  "jsr305-3.0.2.jar")
+              .toAbsolutePath()
+              .normalize(),
+          Paths.get(
+                  System.getProperty("user.home"),
                   ".gradle",
                   "caches",
                   "modules-2",
@@ -74,7 +87,7 @@ class TestWithSample {
     return Arrays.stream(samples.toFile().listFiles())
         .filter(File::isFile)
         .filter(file -> file.getName().endsWith(".java"))
-        .toArray(size -> new File[size]);
+        .toArray(File[]::new);
   }
 
   @ParameterizedTest(name = "Compile and run analysis on {0}")
@@ -105,7 +118,8 @@ class TestWithSample {
       File javaFile, JavaCompiler compiler, StandardJavaFileManager javaFileManager) {
     Iterable<? extends JavaFileObject> javaFileObjects =
         javaFileManager.getJavaFileObjects(javaFile);
-    String classpath = JAR.stream().map(Path::toString).collect(Collectors.joining(","));
+    String classpath =
+        JAR.stream().map(Path::toString).collect(Collectors.joining(File.pathSeparator));
     Boolean success =
         compiler
             .getTask(
@@ -116,6 +130,8 @@ class TestWithSample {
                 null,
                 javaFileObjects)
             .call();
-    Assertions.assertTrue(success);
+    if (!success) {
+      Assertions.fail("Compilation failed unexpectedly");
+    }
   }
 }
